@@ -1,10 +1,11 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Logo from '../components/Logo'
 import ScreenLayout from '../components/ScreenLayout'
 import { CheckCircleIcon } from '../components/Icons'
 import { useOrder } from '../context/OrderContext'
 import { useScreenSpeech } from '../hooks/useSpeech'
+import { saveOrder } from '../lib/history'
 import { cartCups } from '../logic/cart'
 
 /** 기계 앞에서 할 일 세 가지 */
@@ -25,6 +26,22 @@ export default function OrderComplete() {
   useEffect(() => {
     if (!waitingNumber) navigate('/', { replace: true })
   }, [waitingNumber, navigate])
+
+  // 주문이 끝난 이 시점에 이 기기에만 기록을 남긴다. (한 주문당 한 번만)
+  const savedRef = useRef(false)
+  useEffect(() => {
+    if (!waitingNumber || savedRef.current) return
+    savedRef.current = true
+    saveOrder(
+      state.cart.map((item) => ({
+        menuId: item.menu.id,
+        menuName: item.menu.name,
+        quantity: item.quantity,
+        dineOption: state.dine ?? 'store',
+        orderedAt: Date.now(),
+      })),
+    )
+  }, [waitingNumber, state.cart, state.dine])
 
   useScreenSpeech(
     waitingNumber
