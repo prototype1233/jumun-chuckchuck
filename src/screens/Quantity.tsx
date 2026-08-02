@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { CheckCircleIcon } from '../components/Icons'
 import MenuImage from '../components/MenuImage'
 import ScreenLayout from '../components/ScreenLayout'
@@ -23,21 +23,28 @@ const COUNTS = [1, 2, 3]
  * 6-2. 잔 수 선택
  * 추천 결과에서 메뉴를 누르면 여기로 온다. 누르면 바로 장바구니에 담긴다.
  * 진행 인디케이터는 넣지 않는다. (질문 3개와는 별개의 단계다)
+ *
+ * 시작 화면의 '지난번과 같은 메뉴로 할래요' 로도 들어온다. 그때는 추천 화면을
+ * 거치지 않았으므로 뒤로가기가 시작 화면으로 돌아가야 한다.
  */
 export default function Quantity() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { state, addToCart } = useOrder()
   const { advance, cancel } = useAutoAdvance()
   const menu = state.selectedMenu
+
+  // 어디서 들어왔는지 알려 준 화면이 있으면 그리로, 없으면 추천 화면으로 되돌아간다.
+  const backTo = (location.state as { from?: string } | null)?.from ?? '/result'
 
   // 넘어가기 전 400ms 동안 무엇을 눌렀는지 보여 주기 위한 값이다.
   // 잔 수는 누르는 즉시 장바구니에 담기므로 화면에 남겨 둘 이유가 없어 지역 상태로 둔다.
   const [pressed, setPressed] = useState<number | null>(null)
 
-  // 고른 메뉴 없이 들어온 경우 추천 화면으로 되돌린다.
+  // 고른 메뉴 없이 들어온 경우 왔던 화면으로 되돌린다.
   useEffect(() => {
-    if (!menu) navigate('/result', { replace: true })
-  }, [menu, navigate])
+    if (!menu) navigate(backTo, { replace: true })
+  }, [menu, navigate, backTo])
 
   useScreenSpeech(
     menu ? `${menu.name} ${QUESTION} 한 잔, 두 잔, 세 잔 중에서 골라 주세요.` : '',
@@ -47,7 +54,7 @@ export default function Quantity() {
 
   const handleBack = () => {
     cancel()
-    navigate('/result')
+    navigate(backTo)
   }
 
   return (

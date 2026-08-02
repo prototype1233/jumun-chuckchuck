@@ -25,18 +25,16 @@ function objectParticle(word: string): string {
   return (last - 0xac00) % 28 === 0 ? '를' : '을'
 }
 
-interface LastOrder {
-  menu: Menu
-  quantity: number
-}
-
-/** 가장 최근 주문 한 건. 기록이 없거나 메뉴가 사라졌으면 null. */
-function readLastOrder(): LastOrder | null {
+/**
+ * 가장 최근에 주문한 메뉴. 기록이 없거나 그 사이 메뉴가 없어졌으면 null.
+ *
+ * 잔 수는 일부러 가져오지 않는다. 지난번에 두 잔이었다고 오늘도 두 잔은 아니므로
+ * 메뉴만 이어받고 잔 수는 잔 수 선택 화면에서 새로 고르게 한다.
+ */
+function readLastMenu(): Menu | null {
   const [recent] = getRecentOrders()
   if (!recent) return null
-  const menu = MENUS.find((m) => m.id === recent.menuId)
-  if (!menu) return null
-  return { menu, quantity: recent.quantity }
+  return MENUS.find((m) => m.id === recent.menuId) ?? null
 }
 
 /**
@@ -48,10 +46,10 @@ function readLastOrder(): LastOrder | null {
  */
 export default function Welcome() {
   const navigate = useNavigate()
-  const { setDine, addToCart } = useOrder()
+  const { setDine, selectMenu } = useOrder()
 
   // 기록은 화면에 들어올 때 한 번만 읽는다.
-  const [lastOrder] = useState<LastOrder | null>(readLastOrder)
+  const [lastMenu] = useState<Menu | null>(readLastMenu)
 
   const handleStart = () => {
     // 첫 터치에서 음성 잠금을 풀어 두어야 다음 화면부터 안내가 나온다.
@@ -59,20 +57,24 @@ export default function Welcome() {
     navigate('/dine')
   }
 
-  /** 질문과 잔 수 선택을 건너뛰고 지난번 그대로 담는다. */
+  /**
+   * 질문 세 개를 건너뛰고 지난번 메뉴로 바로 잔 수를 고르러 간다.
+   * 담기는 잔 수를 고른 뒤에 이뤄지므로 여기서는 메뉴만 정해 둔다.
+   */
   const handleRepeat = () => {
-    if (!lastOrder) return
+    if (!lastMenu) return
     primeSpeech()
     setDine('store')
-    addToCart(lastOrder.menu, lastOrder.quantity)
-    navigate('/cart')
+    selectMenu(lastMenu)
+    // 잔 수 화면의 뒤로가기가 추천 화면이 아니라 여기로 돌아오게 알려 준다.
+    navigate('/quantity', { state: { from: '/' } })
   }
 
   return (
     <div className="mx-auto flex h-[100dvh] w-full max-w-[430px] animate-enter flex-col bg-bg px-6">
       <div className="flex flex-1 flex-col items-center justify-center">
         {/* 지난 주문 카드가 붙으면 로고를 줄여 한 화면에 들어가게 한다. */}
-        <Logo className={lastOrder ? 'h-auto w-[55%]' : 'h-auto w-[70%]'} />
+        <Logo className={lastMenu ? 'h-auto w-[55%]' : 'h-auto w-[70%]'} />
         <p className="mt-7 text-body font-medium text-ink-sub">오늘도 편하게 주문하세요</p>
       </div>
 
@@ -80,13 +82,13 @@ export default function Welcome() {
         {/* 홈 화면에 두는 방법. 이미 홈 화면 앱이거나 한 번 닫았으면 아무것도 그리지 않는다. */}
         <InstallGuide />
 
-        {lastOrder && (
+        {lastMenu && (
           <div className="mb-5 rounded-card bg-surface p-4 shadow-card">
             <div className="flex items-center gap-4">
-              <MenuImage menu={lastOrder.menu} size={LAST_IMAGE_SIZE} radius={16} eager />
+              <MenuImage menu={lastMenu} size={LAST_IMAGE_SIZE} radius={16} eager />
               <p className="min-w-0 flex-1 break-keep text-price font-semibold text-ink">
-                지난번에는 {lastOrder.menu.name}
-                {objectParticle(lastOrder.menu.name)} 드셨어요
+                지난번에는 {lastMenu.name}
+                {objectParticle(lastMenu.name)} 드셨어요
               </p>
             </div>
 
@@ -95,7 +97,7 @@ export default function Welcome() {
               onClick={handleRepeat}
               className="mt-4 h-touch w-full rounded-cta border-2 border-line bg-surface text-amount font-semibold text-ink transition-transform duration-150 active:scale-[0.99]"
             >
-              지난번과 똑같이 주문할래요
+              지난번과 같은 메뉴로 할래요
             </button>
           </div>
         )}
