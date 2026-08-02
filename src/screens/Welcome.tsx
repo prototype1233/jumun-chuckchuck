@@ -97,7 +97,7 @@ export default function Welcome() {
               onClick={handleRepeat}
               className="mt-4 h-touch w-full rounded-cta border-2 border-line bg-surface text-amount font-semibold text-ink transition-transform duration-150 active:scale-[0.99]"
             >
-              지난번과 같은 메뉴로 할래요
+              같은 메뉴로 주문하기
             </button>
           </div>
         )}

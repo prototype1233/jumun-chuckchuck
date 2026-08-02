@@ -19,6 +19,7 @@ export const MENUS: Menu[] = [
     description: '진하고 시원한 커피예요',
     popularity: 10,
     imageGroup: 'coffee-ice',
+    image: '/menu/ice-americano.jpg',
   },
   {
     id: 'ice-espresso',
@@ -30,6 +31,7 @@ export const MENUS: Menu[] = [
     description: '아주 진한 커피 한 잔이에요',
     popularity: 4,
     imageGroup: 'coffee-ice',
+    image: '/menu/ice-espresso.jpg',
   },
   {
     id: 'ice-cafe-latte',
@@ -41,6 +43,7 @@ export const MENUS: Menu[] = [
     description: '우유를 넣어 부드러워요',
     popularity: 9,
     imageGroup: 'latte-ice',
+    image: '/menu/ice-latte.jpg',
   },
   {
     id: 'ice-vanilla-latte',
@@ -52,6 +55,7 @@ export const MENUS: Menu[] = [
     description: '달콤한 바닐라 향이 나요',
     popularity: 8,
     imageGroup: 'latte-ice',
+    image: '/menu/ice-vanilla-latte.jpg',
   },
   {
     id: 'ice-cafe-mocha',
@@ -63,6 +67,7 @@ export const MENUS: Menu[] = [
     description: '초콜릿을 넣어 달콤해요',
     popularity: 7,
     imageGroup: 'latte-ice',
+    image: '/menu/ice-mocha.jpg',
   },
 
   // ── 커피 · 따뜻함 ─────────────────────────────
@@ -76,6 +81,7 @@ export const MENUS: Menu[] = [
     description: '진하고 깔끔한 커피예요',
     popularity: 10,
     imageGroup: 'coffee-hot',
+    image: '/menu/hot-americano.jpg',
   },
   {
     id: 'hot-espresso',
@@ -87,6 +93,7 @@ export const MENUS: Menu[] = [
     description: '아주 진하고 향이 깊어요',
     popularity: 3,
     imageGroup: 'coffee-hot',
+    image: '/menu/hot-espresso.jpg',
   },
   {
     id: 'hot-cafe-latte',
@@ -98,6 +105,7 @@ export const MENUS: Menu[] = [
     description: '우유 거품이 부드러워요',
     popularity: 9,
     imageGroup: 'latte-hot',
+    image: '/menu/hot-latte.jpg',
   },
   {
     id: 'hot-vanilla-latte',
@@ -109,6 +117,7 @@ export const MENUS: Menu[] = [
     description: '달콤하고 향이 좋아요',
     popularity: 8,
     imageGroup: 'latte-hot',
+    image: '/menu/hot-vanilla-latte.jpg',
   },
 
   // ── 음료 · 시원함 ─────────────────────────────
