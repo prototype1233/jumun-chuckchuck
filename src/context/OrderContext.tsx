@@ -15,7 +15,11 @@ interface OrderState {
   /** 담은 음료들. 담은 순서대로 둔다. */
   cart: CartItem[]
   waitingNumber: string | null
-  /** 음성 안내 켜짐 여부 */
+  /**
+   * 음성 안내 켜짐 여부 — 언제나 true.
+   * 끄는 버튼을 없앴으므로 값이 바뀌는 곳은 없다.
+   * useSpeech 가 이 값을 보고 있어서 자리는 그대로 남겨 둔다.
+   */
   soundOn: boolean
 }
 
@@ -30,28 +34,8 @@ type Action =
   | { type: 'removeFromCart'; menuId: string }
   | { type: 'clearCart' }
   | { type: 'confirmOrder'; waitingNumber: string }
-  | { type: 'toggleSound' }
   | { type: 'resetAnswers' }
   | { type: 'resetAll' }
-
-const SOUND_KEY = 'jcc.soundOn'
-
-/** 저장된 소리 설정을 읽어온다. 값이 없으면 켜짐이 기본. */
-function readSoundSetting(): boolean {
-  try {
-    return window.localStorage.getItem(SOUND_KEY) !== 'off'
-  } catch {
-    return true
-  }
-}
-
-function writeSoundSetting(on: boolean): void {
-  try {
-    window.localStorage.setItem(SOUND_KEY, on ? 'on' : 'off')
-  } catch {
-    // 저장 실패는 무시 — 기능에 영향이 없다.
-  }
-}
 
 const emptyAnswers: Answers = { category: null, temp: null, sweetness: null }
 
@@ -63,7 +47,8 @@ function createInitialState(): OrderState {
     selectedMenu: null,
     cart: [],
     waitingNumber: null,
-    soundOn: readSoundSetting(),
+    // 예전에 소리를 꺼 둔 기기가 있어도 저장된 값을 읽지 않고 항상 켠다.
+    soundOn: true,
   }
 }
 
@@ -103,11 +88,6 @@ function reducer(state: OrderState, action: Action): OrderState {
       return { ...state, cart: [] }
     case 'confirmOrder':
       return { ...state, waitingNumber: action.waitingNumber }
-    case 'toggleSound': {
-      const soundOn = !state.soundOn
-      writeSoundSetting(soundOn)
-      return { ...state, soundOn }
-    }
     case 'resetAnswers':
       // '다시 고를래요' / '더 담을래요' — 질문 3개만 처음으로 되돌린다.
       // 식사 장소(dine)와 매장은 다시 묻지 않으려고 그대로 둔다.
@@ -121,8 +101,7 @@ function reducer(state: OrderState, action: Action): OrderState {
       }
     case 'resetAll':
       // 주문을 마치고 처음으로 — 식사 장소까지 포함해 전부 비운다.
-      // 소리 설정만은 유지한다.
-      return { ...createInitialState(), soundOn: state.soundOn }
+      return createInitialState()
     default:
       return state
   }
@@ -145,7 +124,6 @@ interface OrderContextValue {
   removeFromCart: (menuId: string) => void
   clearCart: () => void
   confirmOrder: () => void
-  toggleSound: () => void
   /** 질문 3개의 답변만 초기화 (식사 장소·매장·장바구니는 유지) */
   resetAnswers: () => void
   /** 식사 장소와 장바구니까지 포함해 주문 상태 전체를 초기화 */
@@ -171,7 +149,6 @@ export function OrderProvider({ children }: { children: ReactNode }) {
       clearCart: () => dispatch({ type: 'clearCart' }),
       confirmOrder: () =>
         dispatch({ type: 'confirmOrder', waitingNumber: createWaitingNumber() }),
-      toggleSound: () => dispatch({ type: 'toggleSound' }),
       resetAnswers: () => dispatch({ type: 'resetAnswers' }),
       resetAll: () => dispatch({ type: 'resetAll' }),
     }),

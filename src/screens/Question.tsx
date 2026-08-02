@@ -1,7 +1,6 @@
 import { useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import ChoiceCard from '../components/ChoiceCard'
-import ProgressDots from '../components/ProgressDots'
 import ScreenLayout from '../components/ScreenLayout'
 import {
   CoffeeIcon,
@@ -98,7 +97,11 @@ export default function Question() {
 
   return (
     <ScreenLayout onBack={handleBack} subtitle={config.subtitle}>
-      <ProgressDots total={TOTAL} current={step} />
+      {/*
+        진행 표시('3개 중 1번째' + 점)가 있던 자리.
+        표시만 없애고 높이(28px)는 그대로 두어 질문이 예전과 같은 자리에 오게 한다.
+      */}
+      <div aria-hidden className="h-7" />
 
       <h1 className="mt-6 text-question font-bold text-ink">{config.question}</h1>
 

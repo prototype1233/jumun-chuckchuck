@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react'
-import { useOrder } from '../context/OrderContext'
-import { BackIcon, SoundOffIcon, SoundOnIcon } from './Icons'
+import { BackIcon } from './Icons'
 import SubtitleBar from './SubtitleBar'
 
 interface ScreenLayoutProps {
@@ -19,7 +18,7 @@ interface ScreenLayoutProps {
 /**
  * 모든 질문 화면의 공통 틀.
  * - 좌측 상단: 항상 큼직한 뒤로가기 (아이콘 + 글씨)
- * - 우측 상단: 소리 켜기/끄기
+ * - 우측 상단: 비워 둔다. 음성 안내는 끄고 켤 수 없이 항상 켜져 있다.
  * - 하단: 자막 바 고정
  * - 자동 타임아웃 없음. 화면은 사용자가 누를 때만 넘어간다.
  * 데스크톱에서는 가운데 정렬 + 좌우 여백이 생긴다.
@@ -31,11 +30,6 @@ export default function ScreenLayout({
   children,
   footer,
 }: ScreenLayoutProps) {
-  const {
-    state: { soundOn },
-    toggleSound,
-  } = useOrder()
-
   return (
     <div className="mx-auto flex h-[100dvh] w-full max-w-[430px] flex-col bg-bg">
       <header className="flex shrink-0 items-center justify-between px-3 pt-[env(safe-area-inset-top)]">
@@ -46,18 +40,6 @@ export default function ScreenLayout({
         >
           <BackIcon size={26} />
           <span className="text-[24px] font-semibold leading-none">{backLabel}</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={toggleSound}
-          aria-pressed={soundOn}
-          className="flex h-touch items-center gap-2 rounded-2xl px-3 text-ink-sub active:scale-[0.98]"
-        >
-          {soundOn ? <SoundOnIcon size={26} /> : <SoundOffIcon size={26} />}
-          <span className="text-sub font-semibold leading-none">
-            {soundOn ? '소리 켬' : '소리 끔'}
-          </span>
         </button>
       </header>
 

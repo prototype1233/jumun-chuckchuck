@@ -102,9 +102,11 @@ export default function Welcome() {
           </div>
         )}
 
-        <p className="mb-5 text-center text-sub font-medium text-ink-sub">
-          가입 없이 바로 쓸 수 있어요
-        </p>
+        {/*
+          안내 문구가 있던 자리. 문구만 지우고 높이(text-sub 한 줄 28px)는 그대로 둔다.
+          위 카드와 시작 버튼이 예전과 똑같은 자리에 있도록 여백으로만 남긴다.
+        */}
+        <div aria-hidden className="mb-5 h-7" />
         <Button onClick={handleStart}>시작하기</Button>
       </div>
     </div>

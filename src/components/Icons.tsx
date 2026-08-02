@@ -102,54 +102,83 @@ export function DrinkIcon(props: IconProps) {
   )
 }
 
-/** 시원함 */
+/**
+ * 시원함 — 육각 눈결정.
+ * 따뜻함(김 나는 컵)과 실루엣이 겹치지 않게 컵을 쓰지 않고 사방으로 뻗는 별 모양으로 그렸다.
+ * 가지 하나를 그려 60도씩 여섯 번 돌려 쓴다.
+ */
 export function ColdIcon(props: IconProps) {
   return (
     <Svg {...props}>
-      <g stroke="currentColor" strokeWidth="3.6" strokeLinecap="round">
-        <path d="M24 5v38M9 14l30 20M39 14 9 34" />
-        <path d="M24 13l-5-4M24 13l5-4M24 35l-5 4M24 35l5 4" />
+      <g stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+        {[0, 60, 120, 180, 240, 300].map((deg) => (
+          <g key={deg} transform={`rotate(${deg} 24 24)`}>
+            <path d="M24 24V6" />
+            {/* 가지는 끝이 아니라 중간에 달아야 옆 가지와 붙어 보이지 않는다 */}
+            <path d="M19.5 10 24 14.5 28.5 10" />
+          </g>
+        ))}
       </g>
     </Svg>
   )
 }
 
-/** 따뜻함 */
+/** 따뜻함 — 김이 모락모락 나는 머그컵 */
 export function HotIcon(props: IconProps) {
   return (
     <Svg {...props}>
-      <circle cx="24" cy="26" r="11" fill="currentColor" />
+      {/* 컵 */}
+      <path
+        d="M6 20h26v10c0 6-5 11-11 11h-4c-6 0-11-5-11-11V20Z"
+        fill="currentColor"
+      />
+      {/* 손잡이 */}
+      <path
+        d="M34 23h2.5a7 7 0 0 1 0 14H34v-5.5h2.5a1.5 1.5 0 0 0 0-3H34V23Z"
+        fill="currentColor"
+        opacity="0.55"
+      />
+      {/* 수증기 — 컵 위로 완만하게 올라가는 곡선 세 줄 */}
       <g stroke="currentColor" strokeWidth="3.6" strokeLinecap="round" opacity="0.55">
-        <path d="M17 12c0-3 3-3 3-6M24 12c0-3 3-3 3-6M31 12c0-3 3-3 3-6" />
+        <path d="M12 16c2.6-3-2.6-6 0-9" />
+        <path d="M19 16c2.6-3-2.6-6 0-9" />
+        <path d="M26 16c2.6-3-2.6-6 0-9" />
       </g>
     </Svg>
   )
 }
 
-/** 달콤함 (꿀 한 방울) */
+/**
+ * 달콤함 — 꿀단지.
+ * 아래로 갈수록 불룩한 단지 + 넓적한 뚜껑.
+ * 담백함(비스듬한 잎사귀)과 실루엣이 겹치지 않게 좌우 대칭에 밑이 무거운 형태로 그렸다.
+ */
 export function SweetIcon(props: IconProps) {
   return (
     <Svg {...props}>
+      {/* 뚜껑 꼭지 */}
+      <rect x="21" y="4" width="6" height="5" rx="2" fill="currentColor" opacity="0.55" />
+      {/* 뚜껑 */}
+      <rect x="10" y="9" width="28" height="7" rx="3" fill="currentColor" opacity="0.55" />
+      {/* 단지 */}
       <path
-        d="M24 5c8 11 13 16.5 13 22.5C37 35.4 31.2 41 24 41S11 35.4 11 27.5C11 21.5 16 16 24 5Z"
+        d="M12 18h24c1.8 3.6 4 7 4 11.5C40 36.5 33 42 24 42S8 36.5 8 29.5C8 25 10.2 21.6 12 18Z"
         fill="currentColor"
       />
     </Svg>
   )
 }
 
-/** 담백함 (잎사귀) */
+/** 담백함 — 잎사귀 한 장 (양 끝이 뾰족한 비스듬한 잎 + 짧은 줄기) */
 export function PlainIcon(props: IconProps) {
   return (
     <Svg {...props}>
+      {/* 얇으면 멀리서 안 보여서 폭을 넉넉하게 잡았다 */}
+      <path d="M37 11C42 28 28 42 11 37 6 20 20 6 37 11Z" fill="currentColor" />
       <path
-        d="M40 8c0 17-10.6 27-25 27h-5C10 18 20.6 8 35 8h5Z"
-        fill="currentColor"
-      />
-      <path
-        d="M8 42C12 30 20 22 32 16"
+        d="M11 37 5 43"
         stroke="currentColor"
-        strokeWidth="3.4"
+        strokeWidth="3.6"
         strokeLinecap="round"
         opacity="0.55"
       />
