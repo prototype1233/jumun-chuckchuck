@@ -1,0 +1,37 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    /* 기기 설정에 따라 글씨가 제멋대로 커지는 것을 막는다 */
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-bg font-sans text-ink antialiased;
+    /* 화면을 당겼을 때 튕기는 효과 제거 — 어르신이 화면이 깨졌다고 느끼지 않도록 */
+    overscroll-behavior: none;
+  }
+
+  #root {
+    @apply min-h-[100dvh] bg-bg;
+  }
+
+  button {
+    /* 누를 때 회색 사각형이 번쩍이는 기본 효과 제거 */
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    user-select: none;
+  }
+}
+
+/* 움직임을 불편해하는 사용자는 애니메이션 없이 본다 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
