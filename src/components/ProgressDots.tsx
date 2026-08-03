@@ -5,24 +5,24 @@ interface ProgressDotsProps {
   current: number
 }
 
-/** '3개 중 1번째' 안내 문구 + 점 인디케이터 */
+/**
+ * 질문 화면 상단의 점 인디케이터.
+ * - 순수 표시용이다. 누를 수 없고 읽어 주지도 않는다. (몇 번째인지는 자막·음성으로 이미 안내한다)
+ * - 화면의 주인공은 질문 글씨라서 눈에 띄지 않게 작고 옅게 둔다.
+ * - 지나간 점과 안 지난 점은 같은 모양(10px)이고, 현재 점만 알약(24x10px)으로 늘어난다.
+ */
 export default function ProgressDots({ total, current }: ProgressDotsProps) {
   return (
-    <div className="flex items-center gap-4">
-      <span className="text-sub font-semibold text-ink-sub">
-        {total}개 중 {current}번째
-      </span>
-      <span className="flex items-center gap-2" aria-hidden="true">
-        {Array.from({ length: total }, (_, i) => (
-          <span
-            key={i}
-            className={[
-              'block h-[10px] rounded-full transition-all duration-200',
-              i + 1 === current ? 'w-[28px] bg-brand' : 'w-[10px] bg-line',
-            ].join(' ')}
-          />
-        ))}
-      </span>
+    <div aria-hidden className="flex h-7 items-center justify-center gap-2">
+      {Array.from({ length: total }, (_, i) => (
+        <span
+          key={i}
+          className={[
+            'block h-[10px] rounded-full transition-[width,background-color] duration-200 ease-out',
+            i + 1 === current ? 'w-[24px] bg-brand' : 'w-[10px] bg-dot',
+          ].join(' ')}
+        />
+      ))}
     </div>
   )
 }

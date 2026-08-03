@@ -74,7 +74,7 @@ export default function Welcome() {
     <div className="mx-auto flex h-[100dvh] w-full max-w-[430px] animate-enter flex-col bg-bg px-6">
       <div className="flex flex-1 flex-col items-center justify-center">
         {/* 지난 주문 카드가 붙으면 로고를 줄여 한 화면에 들어가게 한다. */}
-        <Logo className={lastMenu ? 'h-auto w-[55%]' : 'h-auto w-[70%]'} />
+        <Logo className={lastMenu ? 'h-auto w-[63%]' : 'h-auto w-[80%]'} />
         <p className="mt-7 text-body font-medium text-ink-sub">오늘도 편하게 주문하세요</p>
       </div>
 

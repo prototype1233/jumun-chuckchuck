@@ -1,5 +1,6 @@
 import { createContext, useContext, useMemo, useReducer, type ReactNode } from 'react'
 import { detectNearestStore } from '../data/stores'
+import { createBarcodeValue } from '../lib/barcode'
 import type { Answers, CartItem, Category, DineOption, Menu, Sweetness, Store } from '../types'
 
 /**
@@ -15,6 +16,11 @@ interface OrderState {
   /** 담은 음료들. 담은 순서대로 둔다. */
   cart: CartItem[]
   waitingNumber: string | null
+  /**
+   * 매장 기계에 대는 바코드에 담을 값.
+   * 대기번호와 같은 주문을 가리키므로 주문을 확정할 때 함께 만든다.
+   */
+  barcodeValue: string | null
   /**
    * 음성 안내 켜짐 여부 — 언제나 true.
    * 끄는 버튼을 없앴으므로 값이 바뀌는 곳은 없다.
@@ -33,7 +39,8 @@ type Action =
   | { type: 'addToCart'; menu: Menu; quantity: number; addedAt: number }
   | { type: 'removeFromCart'; menuId: string }
   | { type: 'clearCart' }
-  | { type: 'confirmOrder'; waitingNumber: string }
+  // 대기번호와 바코드 값 모두 reducer 를 순수하게 두려고 바깥에서 만들어 넣는다.
+  | { type: 'confirmOrder'; waitingNumber: string; barcodeValue: string }
   | { type: 'resetAnswers' }
   | { type: 'resetAll' }
 
@@ -47,6 +54,7 @@ function createInitialState(): OrderState {
     selectedMenu: null,
     cart: [],
     waitingNumber: null,
+    barcodeValue: null,
     // 예전에 소리를 꺼 둔 기기가 있어도 저장된 값을 읽지 않고 항상 켠다.
     soundOn: true,
   }
@@ -87,7 +95,7 @@ function reducer(state: OrderState, action: Action): OrderState {
     case 'clearCart':
       return { ...state, cart: [] }
     case 'confirmOrder':
-      return { ...state, waitingNumber: action.waitingNumber }
+      return { ...state, waitingNumber: action.waitingNumber, barcodeValue: action.barcodeValue }
     case 'resetAnswers':
       // '다시 고를래요' / '더 담을래요' — 질문 3개만 처음으로 되돌린다.
       // 식사 장소(dine)와 매장은 다시 묻지 않으려고 그대로 둔다.
@@ -147,8 +155,14 @@ export function OrderProvider({ children }: { children: ReactNode }) {
         dispatch({ type: 'addToCart', menu, quantity, addedAt: Date.now() }),
       removeFromCart: (menuId) => dispatch({ type: 'removeFromCart', menuId }),
       clearCart: () => dispatch({ type: 'clearCart' }),
-      confirmOrder: () =>
-        dispatch({ type: 'confirmOrder', waitingNumber: createWaitingNumber() }),
+      confirmOrder: () => {
+        const waitingNumber = createWaitingNumber()
+        dispatch({
+          type: 'confirmOrder',
+          waitingNumber,
+          barcodeValue: createBarcodeValue(waitingNumber),
+        })
+      },
       resetAnswers: () => dispatch({ type: 'resetAnswers' }),
       resetAll: () => dispatch({ type: 'resetAll' }),
     }),
