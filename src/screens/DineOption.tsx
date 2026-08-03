@@ -1,12 +1,15 @@
 import { useNavigate } from 'react-router-dom'
 import ChoiceCard from '../components/ChoiceCard'
+import QuestionTitle from '../components/QuestionTitle'
 import ScreenLayout from '../components/ScreenLayout'
 import { MugIcon, TakeoutIcon } from '../components/Icons'
 import { useOrder } from '../context/OrderContext'
 import { useAutoAdvance } from '../hooks/useAutoAdvance'
 import { useScreenSpeech } from '../hooks/useSpeech'
 
-const QUESTION = '식사는 어떻게 하시겠어요?'
+/** 좁은 화면에서 줄이 바뀔 자리를 이 덩어리로 정한다. (QuestionTitle 참고) */
+const QUESTION_LINES = ['식사는 어떻게', '하시겠어요?']
+const QUESTION = QUESTION_LINES.join(' ')
 
 /**
  * 2. 식사 장소 선택
@@ -27,7 +30,7 @@ export default function DineOption() {
 
   return (
     <ScreenLayout onBack={handleBack} subtitle="둘 중 하나를 손가락으로 눌러 주세요">
-      <h1 className="text-question font-bold text-ink">{QUESTION}</h1>
+      <QuestionTitle lines={QUESTION_LINES} />
 
       <div className="mt-8 flex flex-col gap-5">
         <ChoiceCard

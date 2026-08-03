@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import ChoiceCard from '../components/ChoiceCard'
 import ProgressDots from '../components/ProgressDots'
+import QuestionTitle from '../components/QuestionTitle'
 import ScreenLayout from '../components/ScreenLayout'
 import {
   CoffeeIcon,
@@ -21,7 +22,8 @@ const TOTAL = 3
 type StepValue = string
 
 interface StepConfig {
-  question: string
+  /** 질문. 좁은 화면에서 줄이 바뀔 자리를 이 덩어리로 정한다. (QuestionTitle 참고) */
+  question: string[]
   /** 음성으로 읽어 줄 문장 (질문 + 선택지 안내) */
   speech: string
   subtitle: string
@@ -34,7 +36,7 @@ interface StepConfig {
 
 const STEPS: Record<number, StepConfig> = {
   1: {
-    question: '어떤 메뉴를 준비해 드릴까요?',
+    question: ['어떤 메뉴를', '준비해 드릴까요?'],
     speech: '어떤 메뉴를 준비해 드릴까요? 커피와 음료 중에서 골라 주세요.',
     subtitle: '고르시면 다음 질문으로 넘어가요',
     options: [
@@ -43,7 +45,7 @@ const STEPS: Record<number, StepConfig> = {
     ],
   },
   2: {
-    question: '온도는 어떻게 하시겠어요?',
+    question: ['온도는 어떻게', '하시겠어요?'],
     speech: '온도는 어떻게 하시겠어요? 시원한 것과 따뜻한 것 중에서 골라 주세요.',
     subtitle: '고르시면 다음 질문으로 넘어가요',
     options: [
@@ -52,7 +54,7 @@ const STEPS: Record<number, StepConfig> = {
     ],
   },
   3: {
-    question: '당도는 어떻게 맞춰드릴까요?',
+    question: ['당도는 어떻게', '맞춰드릴까요?'],
     speech: '당도는 어떻게 맞춰드릴까요? 달콤한 맛과 담백한 맛 중에서 골라 주세요.',
     subtitle: '마지막 질문이에요',
     options: [
@@ -101,7 +103,7 @@ export default function Question() {
       {/* 점만 있는 진행 표시. 높이(28px)는 예전 자리 그대로라 질문 위치는 변하지 않는다. */}
       <ProgressDots total={TOTAL} current={step} />
 
-      <h1 className="mt-6 text-question font-bold text-ink">{config.question}</h1>
+      <QuestionTitle lines={config.question} className="mt-6" />
 
       <div className="mt-8 flex flex-col gap-5">
         {config.options.map((option) => (
