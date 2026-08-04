@@ -169,6 +169,42 @@ export function SweetIcon(props: IconProps) {
   )
 }
 
+/**
+ * 연하게 — 물방울.
+ * '물을 넉넉히 넣어 순하다' 를 글 없이 알린다.
+ * 진하게(원두)와 실루엣이 겹치지 않게 위가 뾰족하고 아래가 둥근 형태로 그렸다.
+ */
+export function DropIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M24 5c9 11 14 17 14 23a14 14 0 0 1-28 0c0-6 5-12 14-23Z" fill="currentColor" />
+    </Svg>
+  )
+}
+
+/**
+ * 진하게 — 커피 원두 한 알.
+ * 가운데 골이 보여야 '원두' 로 읽히는데, 속을 채우면 골이 묻힌다.
+ * 그래서 이 아이콘만 굵은 선으로 그린다. (선 굵기 4 — 멀리서도 보이게)
+ */
+export function BeanIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <g
+        stroke="currentColor"
+        strokeWidth="4"
+        fill="none"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        transform="rotate(-40 24 24)"
+      >
+        <ellipse cx="24" cy="24" rx="12.5" ry="18" />
+        <path d="M24 7c-5 5-5 10 0 15s5 12 0 17" />
+      </g>
+    </Svg>
+  )
+}
+
 /** 담백함 — 잎사귀 한 장 (양 끝이 뾰족한 비스듬한 잎 + 짧은 줄기) */
 export function PlainIcon(props: IconProps) {
   return (
@@ -251,5 +287,31 @@ export function SoundOffIcon({ size = 26, className }: IconProps) {
         strokeLinecap="round"
       />
     </svg>
+  )
+}
+
+/** 마이크 — 말로 주문하기 */
+export function MicIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      {/* 마이크 몸통 */}
+      <rect x="18" y="5" width="12" height="23" rx="6" fill="currentColor" />
+      {/* 받침 — 몸통보다 연하게 두어 마이크 모양이 먼저 보이게 한다 */}
+      <path
+        d="M14 22a10 10 0 0 0 20 0"
+        stroke="currentColor"
+        strokeWidth="4"
+        strokeLinecap="round"
+        fill="none"
+        opacity="0.55"
+      />
+      <path
+        d="M24 32v7M17 41h14"
+        stroke="currentColor"
+        strokeWidth="4"
+        strokeLinecap="round"
+        opacity="0.55"
+      />
+    </Svg>
   )
 }

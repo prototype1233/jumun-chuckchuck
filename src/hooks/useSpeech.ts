@@ -46,10 +46,18 @@ export function useSpeech() {
     synth.cancel()
   }, [])
 
+  /**
+   * @param onEnd 다 읽고 난 뒤에 할 일.
+   *   말로 주문하기 화면처럼 '안내를 다 읽은 다음에 마이크를 켜야' 하는 곳에서 쓴다.
+   *   읽어 줄 수 없는 상황(미지원 기기·소리 끔)에서는 기다리게 두면 안 되므로 바로 부른다.
+   */
   const speak = useCallback(
-    (text: string) => {
+    (text: string, onEnd?: () => void) => {
       const synth = getSynth()
-      if (!synth || !soundOn || !text) return
+      if (!synth || !soundOn || !text) {
+        onEnd?.()
+        return
+      }
       synth.cancel()
       const utterance = new SpeechSynthesisUtterance(text)
       utterance.lang = 'ko-KR'
@@ -57,6 +65,11 @@ export function useSpeech() {
       utterance.pitch = 1
       const voice = pickKoreanVoice(synth)
       if (voice) utterance.voice = voice
+      if (onEnd) {
+        utterance.onend = () => onEnd()
+        // 브라우저에 따라 onend 가 오지 않는 경우가 있어 실패도 끝으로 친다.
+        utterance.onerror = () => onEnd()
+      }
       synth.speak(utterance)
     },
     [soundOn],

@@ -1,7 +1,16 @@
 import { createContext, useContext, useMemo, useReducer, type ReactNode } from 'react'
 import { detectNearestStore } from '../data/stores'
 import { createBarcodeValue } from '../lib/barcode'
-import type { Answers, CartItem, Category, DineOption, Menu, Sweetness, Store } from '../types'
+import type {
+  Answers,
+  CartItem,
+  Category,
+  CoffeeTaste,
+  DineOption,
+  Menu,
+  Sweetness,
+  Store,
+} from '../types'
 
 /**
  * 주문 상태 — 외부 상태관리 라이브러리 없이 Context + useReducer 만 사용한다.
@@ -34,6 +43,7 @@ type Action =
   | { type: 'setCategory'; value: Category }
   | { type: 'setTemp'; value: 'ice' | 'hot' }
   | { type: 'setSweetness'; value: Sweetness }
+  | { type: 'setCoffeeTaste'; value: CoffeeTaste }
   | { type: 'selectMenu'; menu: Menu }
   // addedAt 은 reducer 를 순수하게 두려고 바깥에서 만들어 넣는다.
   | { type: 'addToCart'; menu: Menu; quantity: number; addedAt: number }
@@ -44,7 +54,7 @@ type Action =
   | { type: 'resetAnswers' }
   | { type: 'resetAll' }
 
-const emptyAnswers: Answers = { category: null, temp: null, sweetness: null }
+const emptyAnswers: Answers = { category: null, temp: null, sweetness: null, coffeeTaste: null }
 
 function createInitialState(): OrderState {
   return {
@@ -65,11 +75,21 @@ function reducer(state: OrderState, action: Action): OrderState {
     case 'setDine':
       return { ...state, dine: action.dine }
     case 'setCategory':
-      return { ...state, answers: { ...state.answers, category: action.value } }
+      // 종류를 바꾸면 세 번째 질문 자체가 바뀐다. (커피는 '어떤 맛', 음료는 '당도')
+      // 앞서 고르신 답이 남아 있으면 묻지도 않은 답으로 추천이 나오므로 함께 비운다.
+      if (state.answers.category === action.value) {
+        return { ...state, answers: { ...state.answers, category: action.value } }
+      }
+      return {
+        ...state,
+        answers: { ...state.answers, category: action.value, sweetness: null, coffeeTaste: null },
+      }
     case 'setTemp':
       return { ...state, answers: { ...state.answers, temp: action.value } }
     case 'setSweetness':
       return { ...state, answers: { ...state.answers, sweetness: action.value } }
+    case 'setCoffeeTaste':
+      return { ...state, answers: { ...state.answers, coffeeTaste: action.value } }
     case 'selectMenu':
       // 메뉴만 고른 상태. 잔 수는 다음 화면에서 고른다.
       return { ...state, selectedMenu: action.menu, waitingNumber: null }
@@ -125,7 +145,10 @@ interface OrderContextValue {
   setDine: (dine: DineOption) => void
   setCategory: (value: Category) => void
   setTemp: (value: 'ice' | 'hot') => void
+  /** 음료를 고르셨을 때의 세 번째 답 */
   setSweetness: (value: Sweetness) => void
+  /** 커피를 고르셨을 때의 세 번째 답 */
+  setCoffeeTaste: (value: CoffeeTaste) => void
   selectMenu: (menu: Menu) => void
   /** 잔 수까지 정한 메뉴를 장바구니에 담는다. 같은 메뉴면 잔 수만 더해진다. */
   addToCart: (menu: Menu, quantity: number) => void
@@ -150,6 +173,7 @@ export function OrderProvider({ children }: { children: ReactNode }) {
       setCategory: (value) => dispatch({ type: 'setCategory', value }),
       setTemp: (value) => dispatch({ type: 'setTemp', value }),
       setSweetness: (value) => dispatch({ type: 'setSweetness', value }),
+      setCoffeeTaste: (value) => dispatch({ type: 'setCoffeeTaste', value }),
       selectMenu: (menu) => dispatch({ type: 'selectMenu', menu }),
       addToCart: (menu, quantity) =>
         dispatch({ type: 'addToCart', menu, quantity, addedAt: Date.now() }),

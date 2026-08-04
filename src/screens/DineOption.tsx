@@ -33,10 +33,14 @@ export default function DineOption() {
       <QuestionTitle lines={QUESTION_LINES} />
 
       <div className="mt-8 flex flex-col gap-5">
+        {/* emphasis="dine": 제목 32px + 설명 22px.
+            글씨가 커진 만큼 카드 좌우 여백을 줄여(ChoiceCard 참고) 제목은 한 줄에 들어가고,
+            설명은 줄이 바뀌더라도 '들고 나가실 수 / 있어요' 처럼 낱말 단위로만 나뉜다. */}
         <ChoiceCard
           icon={<MugIcon size={64} />}
           title="매장에서 먹기"
           caption="가게 안에서 드세요"
+          emphasis="dine"
           selected={state.dine === 'store'}
           onClick={() => advance('/q/1', () => setDine('store'))}
         />
@@ -44,6 +48,7 @@ export default function DineOption() {
           icon={<TakeoutIcon size={64} />}
           title="포장하기"
           caption="들고 나가실 수 있어요"
+          emphasis="dine"
           selected={state.dine === 'togo'}
           onClick={() => advance('/q/1', () => setDine('togo'))}
         />

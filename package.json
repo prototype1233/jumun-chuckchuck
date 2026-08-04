@@ -7,6 +7,7 @@
     "dev": "vite",
     "icons": "node scripts/gen-icons.mjs",
     "qr": "node scripts/gen-qr.mjs",
+    "check:combos": "node scripts/check-combos.mjs",
     "build": "tsc -b && vite build",
     "preview": "vite preview --host",
     "typecheck": "tsc -b --noEmit false --emitDeclarationOnly false"

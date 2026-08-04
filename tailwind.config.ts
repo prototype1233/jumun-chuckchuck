@@ -36,6 +36,10 @@ export default {
         question: ['34px', { lineHeight: '46px', letterSpacing: '-0.02em' }],
         btn: ['28px', { lineHeight: '36px', letterSpacing: '-0.02em' }],
         'card-title': ['26px', { lineHeight: '34px', letterSpacing: '-0.02em' }],
+        // 식사 장소 카드처럼 선택지가 둘뿐이라 더 크게 보여 줄 수 있는 자리 (28px -> 32px)
+        'choice-title': ['32px', { lineHeight: '42px', letterSpacing: '-0.02em' }],
+        // 카드 안의 한 줄 설명 — 18px 는 작아서 안 읽힌다고 하셔서 22px 로 올렸다.
+        caption: ['22px', { lineHeight: '28px', letterSpacing: '-0.01em' }],
         body: ['20px', { lineHeight: '30px', letterSpacing: '-0.01em' }],
         sub: ['18px', { lineHeight: '28px', letterSpacing: '-0.01em' }],
         price: ['22px', { lineHeight: '30px', letterSpacing: '-0.01em' }],
@@ -71,10 +75,22 @@ export default {
           from: { opacity: '0', transform: 'translateY(12px)' },
           to: { opacity: '1', transform: 'translateY(0)' },
         },
+        // 말소리를 듣고 있는 동안 마이크가 통통 뛴다. '지금 듣고 있어요' 를 글 없이 알린다.
+        'mic-bounce': {
+          '0%, 100%': { transform: 'translateY(0) scale(1)' },
+          '50%': { transform: 'translateY(-14px) scale(1.06)' },
+        },
+        // 마이크 뒤로 퍼지는 물결
+        'mic-ring': {
+          '0%': { transform: 'scale(0.9)', opacity: '0.45' },
+          '100%': { transform: 'scale(1.7)', opacity: '0' },
+        },
       },
       animation: {
         enter: 'enter 200ms ease-out both',
         'rise-in': 'rise-in 200ms ease-out both',
+        'mic-bounce': 'mic-bounce 1s ease-in-out infinite',
+        'mic-ring': 'mic-ring 1.6s ease-out infinite',
       },
     },
   },

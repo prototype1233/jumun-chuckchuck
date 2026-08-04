@@ -2,11 +2,13 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Button from '../components/Button'
 import InstallGuide from '../components/InstallGuide'
+import { MicIcon } from '../components/Icons'
 import Logo from '../components/Logo'
 import MenuImage from '../components/MenuImage'
 import { useOrder } from '../context/OrderContext'
 import { MENUS } from '../data/menus'
 import { primeSpeech } from '../hooks/useSpeech'
+import { isVoiceInputSupported } from '../hooks/useVoiceInput'
 import { getRecentOrders } from '../lib/history'
 import type { Menu } from '../types'
 
@@ -51,10 +53,19 @@ export default function Welcome() {
   // 기록은 화면에 들어올 때 한 번만 읽는다.
   const [lastMenu] = useState<Menu | null>(readLastMenu)
 
+  // 브라우저마다 다르므로 한 번만 확인해 둔다.
+  const [voiceSupported] = useState(isVoiceInputSupported)
+
   const handleStart = () => {
     // 첫 터치에서 음성 잠금을 풀어 두어야 다음 화면부터 안내가 나온다.
     primeSpeech()
     navigate('/dine')
+  }
+
+  /** 메뉴를 이미 정하고 오신 분을 위한 지름길. 질문 세 개를 건너뛴다. */
+  const handleVoice = () => {
+    primeSpeech()
+    navigate('/voice')
   }
 
   /**
@@ -75,7 +86,12 @@ export default function Welcome() {
       <div className="flex flex-1 flex-col items-center justify-center">
         {/* 지난 주문 카드가 붙으면 로고를 줄여 한 화면에 들어가게 한다. */}
         <Logo className={lastMenu ? 'h-auto w-[63%]' : 'h-auto w-[80%]'} />
-        <p className="mt-7 text-body font-medium text-ink-sub">오늘도 편하게 주문하세요</p>
+        {/*
+          '오늘도 편하게 주문하세요' 가 있던 자리.
+          글씨가 작아 읽히지 않아 문구만 지우고, 그 자리는 다른 것으로 채우지 않는다.
+          로고가 화면 가운데에 그대로 있도록 높이(mt-7 28px + 한 줄 30px)만 남긴다.
+        */}
+        <div aria-hidden className="h-[58px]" />
       </div>
 
       <div className="pb-[calc(env(safe-area-inset-bottom)+32px)]">
@@ -107,6 +123,20 @@ export default function Welcome() {
           위 카드와 시작 버튼이 예전과 똑같은 자리에 있도록 여백으로만 남긴다.
         */}
         <div aria-hidden className="mb-5 h-7" />
+
+        {/* 말소리를 알아듣지 못하는 브라우저에서는 아예 보여 주지 않는다.
+            눌러 보고 안 되면 더 혼란스럽기 때문이다. */}
+        {voiceSupported && (
+          <button
+            type="button"
+            onClick={handleVoice}
+            className="mb-4 flex h-touch w-full items-center justify-center gap-3 rounded-cta border-2 border-line bg-surface text-ink transition-transform duration-150 active:scale-[0.99]"
+          >
+            <MicIcon size={44} />
+            <span className="text-[24px] font-semibold leading-none">말로 주문하기</span>
+          </button>
+        )}
+
         <Button onClick={handleStart}>시작하기</Button>
       </div>
     </div>

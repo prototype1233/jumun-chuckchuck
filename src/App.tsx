@@ -1,6 +1,8 @@
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { OrderProvider } from './context/OrderContext'
+import { useClickSound } from './hooks/useClickSound'
 import Welcome from './screens/Welcome'
+import VoiceOrder from './screens/VoiceOrder'
 import DineOption from './screens/DineOption'
 import Question from './screens/Question'
 import Result from './screens/Result'
@@ -19,6 +21,7 @@ function AnimatedRoutes() {
   return (
     <Routes location={location} key={location.pathname}>
       <Route path="/" element={<Welcome />} />
+      <Route path="/voice" element={<VoiceOrder />} />
       <Route path="/dine" element={<DineOption />} />
       <Route path="/q/:step" element={<Question />} />
       <Route path="/result" element={<Result />} />
@@ -32,6 +35,9 @@ function AnimatedRoutes() {
 }
 
 export default function App() {
+  // 앱 안의 모든 선택 카드·버튼에서 짧은 터치음이 나게 한다. (화면마다 따로 붙이지 않는다)
+  useClickSound()
+
   return (
     <OrderProvider>
       {/* GitHub Pages 는 저장소 이름이 주소 앞에 붙는다.
