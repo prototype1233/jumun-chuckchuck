@@ -1,18 +1,20 @@
+import { encodeOrderValue, type OrderCodeLine } from './orderCode'
+
 /**
  * 매장 기계(키오스크·POS)에 대는 바코드 값.
  *
  * ── 지금 값을 어떻게 만드는가 ──────────────────────────────
- * 형식: JC + 대기번호 4자리 + 시각 6자리   (예: JC3721142530)
- *   JC      … 주문 척척 주문이라는 표시
- *   3721    … 화면에 크게 보여 주는 대기번호와 똑같은 숫자
- *   142530  … 만든 시각 시분초 (14시 25분 30초)
- *             대기번호는 하루에 같은 숫자가 다시 나올 수 있어서,
- *             시각을 붙여 그날 안에서는 값이 겹치지 않게 한다.
- * 모두 CODE128 이 그대로 담을 수 있는 영문 대문자·숫자 12자리다.
+ * 형식: JC + 대기번호 4자리 + (메뉴 2자리 + 잔수 1자리) × 담은 줄 수
+ *   예) JC3721 0402 1101   … 대기번호 3721, 4번 메뉴 두 잔 + 11번 메뉴 한 잔
+ * 자세한 규칙과 이유는 lib/orderCode.ts 에 적어 두었다.
+ *
+ * 값 안에 주문 내용까지 담는 이유는 하나다. 서버가 없어서,
+ * 폰과 매장 기계가 서로 다른 기기일 때 주문이 건너갈 길이 이 바코드밖에 없다.
+ * (같은 브라우저끼리는 BroadcastChannel 로도 오간다 — lib/kioskChannel.ts)
  *
  * ── 실제 매장에 들일 때 ────────────────────────────────────
  * 이 앱은 POS 와 연결돼 있지 않아서 주문번호를 스스로 만들어 쓴다.
- * 즉 지금 이 바코드는 '이 주문을 가리키는 이름표'일 뿐, 매장 기계가 알아보는 주문번호가 아니다.
+ * 즉 지금 이 바코드는 우리끼리 정한 값이지, 매장 기계가 알아보는 주문번호가 아니다.
  *
  * 매장에 실제로 들이게 되면 아래 createBarcodeValue 하나만 갈아 끼우면 된다.
  * 화면·컴포넌트는 이 함수가 돌려준 문자열을 그대로 그리기만 하므로 다른 곳은 손댈 필요가 없다.
@@ -23,23 +25,12 @@
  *   3) 체크숫자나 매장 코드가 필요하면 이 파일 안에서 붙인다. 화면 쪽은 그대로 둔다.
  */
 
-/** 앞에 붙는 표시. 주문 척척(Jumun ChuckChuck). */
-const PREFIX = 'JC'
-
-/** 두 자리로 맞춘다. (9시 → '09') */
-function pad2(value: number): string {
-  return String(value).padStart(2, '0')
-}
-
 /**
- * 대기번호로 바코드에 담을 값을 만든다.
+ * 대기번호와 담은 것으로 바코드에 담을 값을 만든다.
  *
  * @param waitingNumber 대기번호 4자리 문자열
- * @param at 만든 시각 (기본값은 지금. 테스트에서 시각을 고정하려고 열어 둔다)
+ * @param lines 담은 메뉴와 잔 수. 비어 있으면 대기번호만 담긴다.
  */
-export function createBarcodeValue(waitingNumber: string, at: Date = new Date()): string {
-  // 숫자가 아닌 글자가 섞여 들어와도 바코드가 깨지지 않게 숫자만 남기고 4자리로 맞춘다.
-  const digits = waitingNumber.replace(/\D/g, '').slice(0, 4).padStart(4, '0')
-  const time = `${pad2(at.getHours())}${pad2(at.getMinutes())}${pad2(at.getSeconds())}`
-  return `${PREFIX}${digits}${time}`
+export function createBarcodeValue(waitingNumber: string, lines: OrderCodeLine[] = []): string {
+  return encodeOrderValue(waitingNumber, lines)
 }

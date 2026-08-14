@@ -99,7 +99,9 @@ export default function OrderComplete() {
               >
                 {/* 규격상 최소 100px. 화면이 짧을 때만 110 → 100px 로 줄여 안내 자리를 조금 넘겨준다. */}
                 <Barcode value={barcodeValue} className="h-[clamp(100px,13vh,110px)] w-full" />
-                <span className="mt-1 block text-center text-body font-semibold tracking-[0.14em] text-black">
+                {/* 값에 주문 내용까지 담기면서 길어질 수 있다. 자간을 줄여 한 줄에 붙잡아 둔다.
+                    (줄이 바뀌면 바코드가 아래로 밀려 스캐너에 대기 어려워진다) */}
+                <span className="mt-1 block truncate text-center text-sub font-semibold tracking-[0.08em] text-black">
                   {barcodeValue}
                 </span>
               </button>
@@ -131,7 +133,7 @@ export default function OrderComplete() {
           className="fixed inset-0 z-50 flex w-full flex-col items-center justify-center gap-6 bg-white px-4"
         >
           <Barcode value={barcodeValue} height={160} className="h-[46vh] w-full" />
-          <span className="text-center text-menu font-bold tracking-[0.14em] text-black">
+          <span className="break-all text-center text-price font-bold tracking-[0.08em] text-black">
             {barcodeValue}
           </span>
           <span className="text-sub font-medium text-ink-sub">화면을 누르면 작아져요</span>

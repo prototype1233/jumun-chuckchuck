@@ -1,6 +1,8 @@
 import { createContext, useContext, useMemo, useReducer, type ReactNode } from 'react'
 import { detectNearestStore } from '../data/stores'
 import { createBarcodeValue } from '../lib/barcode'
+import { publishOrder } from '../lib/kioskChannel'
+import { cartTotal } from '../logic/cart'
 import type {
   Answers,
   CartItem,
@@ -208,10 +210,28 @@ export function OrderProvider({ children }: { children: ReactNode }) {
       clearCart: () => dispatch({ type: 'clearCart' }),
       confirmOrder: () => {
         const waitingNumber = createWaitingNumber()
-        dispatch({
-          type: 'confirmOrder',
+        // 바코드 값 하나에 대기번호와 담은 것을 함께 담는다.
+        // 매장 기계가 이 값만 읽어도 주문 전체를 되살릴 수 있어야 한다. (lib/orderCode.ts)
+        const barcodeValue = createBarcodeValue(
           waitingNumber,
-          barcodeValue: createBarcodeValue(waitingNumber),
+          state.cart.map((item) => ({ menuId: item.menu.id, quantity: item.quantity })),
+        )
+        dispatch({ type: 'confirmOrder', waitingNumber, barcodeValue })
+
+        // 같은 브라우저의 키오스크 시연 화면에도 알린다.
+        // 듣는 곳이 없거나 실패해도 주문에는 아무 영향이 없다.
+        publishOrder({
+          waitingNumber,
+          barcodeValue,
+          lines: state.cart.map((item) => ({
+            menuId: item.menu.id,
+            menuName: item.menu.name,
+            quantity: item.quantity,
+            price: item.menu.price,
+          })),
+          total: cartTotal(state.cart),
+          dine: state.dine ?? 'store',
+          at: Date.now(),
         })
       },
       resetAnswers: () => dispatch({ type: 'resetAnswers' }),

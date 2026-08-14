@@ -95,7 +95,12 @@ for (const f of await readdir('assets-original'))
 | 5    | 질문 3    | `/q/3`     | 달콤함 / 담백함                              |
 | 6    | 추천 결과 | `/result`  | 메뉴 3개 추천(사진 120px), 하나 선택         |
 | 7    | 주문 확인 | `/confirm` | 고른 메뉴 사진 240px + [이걸로 할게요]       |
-| 8    | 주문 완료 | `/done`    | 네 자리 대기번호 + 키오스크 3단계 안내       |
+| 8    | 주문 완료 | `/done`    | 네 자리 대기번호 + 바코드 + 키오스크 3단계 안내 |
+
+이 밖에 어르신이 쓰는 흐름과는 별개로, 심사 시연용 화면이 하나 더 있습니다.
+
+| 시연용 | 매장 키오스크 | `/kiosk` | 매장 기계 흉내 (아래 4-2 참고). 앱 안에 들어가는 길은 없습니다 |
+| ------ | ------------- | -------- | ------------------------------------------------------------- |
 
 질문 화면에서는 답을 고르면 0.4초 뒤 자동으로 다음 질문으로 넘어갑니다.
 **자동 타임아웃은 어디에도 없습니다.** 화면은 사용자가 누를 때만 움직입니다.
@@ -148,22 +153,83 @@ for (const f of await readdir('assets-original'))
 
 ---
 
+## 4-2. 매장 키오스크 시뮬레이터 (`/kiosk`)
+
+주문이 매장 기계로 **어떻게 건너가는지**를 눈으로 보여 주는 화면입니다.
+노트북·태블릿 가로 화면(1280x800)에 띄워 두고 씁니다.
+
+> ⚠️ 실제 매장 키오스크와 연동된 것이 **아닙니다.** 연동됐을 때의 동작을 흉내 낸 화면이며,
+> 그래서 화면 오른쪽 아래에 **'시연용 화면'** 이 항상 떠 있습니다. 상단 브랜드명(한빛커피)도 지어낸 이름입니다.
+
+### 흐름
+
+```
+대기 화면 (바코드를 읽는 중 + 번호판)
+   → 주문 확인 (메뉴·잔 수·총액)   3초 뒤 자동
+   → 카드를 넣어 주세요            3초 뒤 자동
+   → 결제가 끝났어요 + 대기번호     5초 뒤 자동
+   → 다시 대기 화면
+```
+
+### 주문이 건너가는 두 갈래
+
+| 방법 | 되는 상황 | 원리 |
+| ---- | --------- | ---- |
+| **바코드** | 폰과 노트북이 **서로 다른 기기**여도 됨 | 바코드 값 자체에 주문이 들어 있음 (`src/lib/orderCode.ts`) |
+| BroadcastChannel | 같은 브라우저의 다른 탭일 때만 | 앱이 주문 확정 시 방송 (`src/lib/kioskChannel.ts`) |
+
+바코드 값 형식은 `JC + 대기번호 4자리 + (메뉴 2자리 + 잔수 1자리) × 줄 수` 입니다.
+예: `JC3721012` = 대기번호 3721, 1번 메뉴 두 잔.
+서버가 없으므로 **현장 시연은 바코드 쪽이 본선**입니다. BroadcastChannel 은 노트북 한 대로
+연습할 때 쓰는 보조 수단입니다.
+
+> 메뉴를 새로 만들면 `src/lib/orderCode.ts` 의 `CODE_ORDER` **맨 뒤에** id 를 덧붙이세요.
+> 중간에 끼워 넣으면 이미 찍힌 바코드가 다른 메뉴를 가리키게 됩니다. (개발 모드에서 콘솔로 알려 줍니다)
+
+### 시연이 멈추지 않게 하려고 둔 것들
+
+- 웹캠 권한이 거절되거나 카메라가 없으면 → 바로 **번호판**으로 안내가 옮겨 갑니다.
+- 12초 동안 안 읽히면 → 오른쪽 안내가 **"번호를 눌러 주세요"** 로 바뀝니다.
+- 우리 것이 아닌 바코드를 읽으면 → 안내만 띄우고 계속 읽습니다.
+- 번호로도 못 찾으면 → **[시연용 예시 주문으로 계속하기]** 로 끝까지 보여 줄 수 있습니다.
+  (이때는 화면에 '시연용 예시 주문' 이라고 밝힙니다)
+
+### 시연 준비 순서
+
+1. 노트북에서 `/kiosk` 를 **미리 한 번 열어 둡니다.** (바코드 인식 라이브러리를 그때 받습니다)
+2. 카메라 권한을 미리 허용해 둡니다. 심사 중에 권한 창이 뜨지 않게 합니다.
+3. 폰에서 주문을 마치고 `/done` 화면의 바코드를 **[크게 보기]** 로 키운 뒤 웹캠에 댑니다.
+   화면 밝기를 올리면 훨씬 잘 읽힙니다.
+4. 안 읽히면 당황하지 말고 대기번호 네 자리를 번호판에 누르면 됩니다.
+
+> `/kiosk` 화면은 무거운 인식 라이브러리를 쓰기 때문에 **따로 떼어** 두었습니다.
+> 어르신 폰에 설치되는 앱 본체는 이 무게를 받지 않고, 미리 받아 두지도 않습니다.
+
+---
+
 ## 5. 폴더 구조
 
 ```
 src/
 ├─ components/     Button, ChoiceCard, ScreenLayout, ProgressDots, SubtitleBar,
 │                  Logo, MenuImage, Icons, InstallGuide, OfflineNotice
-├─ screens/        Welcome, DineOption, Question, Result,
+├─ screens/        Welcome, VoiceOrder, DineOption, Question, Result,
 │                  Quantity, Cart, OrderConfirm, OrderComplete
+│                  Kiosk.tsx          — 시연용 매장 키오스크 (/kiosk, 따로 떼어 나중에 받음)
 ├─ context/        OrderContext.tsx   — Context + useReducer (외부 상태 라이브러리 없음)
 ├─ logic/          recommend.ts       — 추천 규칙 (순수 함수)
 │                  cart.ts            — 잔 수·금액 계산
-├─ data/           menus.ts (17종), stores.ts
+├─ data/           menus.ts (30종), stores.ts
+├─ lib/            speech.ts          — 목소리 고르기 · 금액을 우리말로
+│                  barcode.ts         — 바코드에 담을 값 (매장 연동 시 여기만 교체)
+│                  orderCode.ts       — 바코드 값 ↔ 주문 (기기가 달라도 건너가는 길)
+│                  kioskChannel.ts    — 앱 ↔ 키오스크 (같은 브라우저 탭끼리)
 ├─ hooks/          useSpeech.ts       — Web Speech API (ko-KR)
+│                  useVoiceInput.ts   — 말로 주문하기 (SpeechRecognition)
+│                  useBarcodeScanner.ts — 웹캠 바코드 인식 (@zxing, 키오스크 전용)
 │                  useAutoAdvance.ts  — 선택 후 자동 전환 (400ms)
 │                  useOnline.ts       — 인터넷 연결 상태
-├─ constants.ts    AUTO_ADVANCE_MS
+├─ constants.ts    AUTO_ADVANCE_MS, 음성 속도·높낮이·크기
 ├─ assetUrl.ts     public/ 자산 경로에 base 를 붙임 (GitHub Pages 대응)
 ├─ types.ts
 ├─ App.tsx         라우팅 + 200ms 전환

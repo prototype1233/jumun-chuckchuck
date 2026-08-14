@@ -13,6 +13,7 @@
     "typecheck": "tsc -b --noEmit false --emitDeclarationOnly false"
   },
   "dependencies": {
+    "@zxing/library": "^0.23.0",
     "jsbarcode": "^3.12.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

@@ -85,12 +85,35 @@ export default {
           '0%': { transform: 'scale(0.9)', opacity: '0.45' },
           '100%': { transform: 'scale(1.7)', opacity: '0' },
         },
+        // ── 아래 셋은 키오스크 시연 화면(screens/Kiosk.tsx) 전용 ──
+        // 스캔 영역을 위아래로 훑는 빛. '지금 읽고 있다' 를 글 없이 알린다.
+        'scan-line': {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(var(--scan-travel, 200px))' },
+        },
+        // 카드가 아래 투입구로 쑥 들어갔다가 다시 나온다.
+        // 사라지는 것은 opacity 가 아니라 부모의 overflow-hidden 이 잘라 주는 것이다.
+        // (투명해지는 것보다 '경계 아래로 들어갔다' 로 보여야 투입구처럼 읽힌다)
+        'card-insert': {
+          '0%': { transform: 'translateY(0) rotate(-2deg)' },
+          '45%': { transform: 'translateY(132px) rotate(0deg)' },
+          '78%': { transform: 'translateY(132px) rotate(0deg)' },
+          '100%': { transform: 'translateY(0) rotate(-2deg)' },
+        },
+        // 투입구 둘레가 천천히 밝아졌다 어두워진다
+        'slot-glow': {
+          '0%, 100%': { opacity: '0.35' },
+          '50%': { opacity: '1' },
+        },
       },
       animation: {
         enter: 'enter 200ms ease-out both',
         'rise-in': 'rise-in 200ms ease-out both',
         'mic-bounce': 'mic-bounce 1s ease-in-out infinite',
         'mic-ring': 'mic-ring 1.6s ease-out infinite',
+        'scan-line': 'scan-line 2.4s ease-in-out infinite',
+        'card-insert': 'card-insert 2.2s ease-in-out infinite',
+        'slot-glow': 'slot-glow 1.6s ease-in-out infinite',
       },
     },
   },

@@ -64,6 +64,18 @@ export default defineConfig({
         // 앱 셸과 메뉴 사진을 통째로 미리 받아 둔다.
         // 카페 와이파이가 느려도 사진이 즉시 뜨고, 아예 끊겨도 메뉴를 둘러볼 수 있다.
         globPatterns: ['**/*.{js,css,html,svg,png,jpg,webmanifest}'],
+        // 키오스크 시연 화면(+바코드 인식 라이브러리, 약 440KB)은 미리 받아 두지 않는다.
+        // 어르신 폰에는 평생 열 일이 없는 화면이라 데이터만 축낸다.
+        globIgnores: ['**/Kiosk-*.js'],
+        // 대신 시연용 노트북에서 한 번 열고 나면 그 뒤로는 캐시에서 뜬다.
+        // 심사장 인터넷이 끊겨도 이미 열어 둔 키오스크 화면은 계속 동작한다.
+        runtimeCaching: [
+          {
+            urlPattern: /\/assets\/Kiosk-.*\.js$/,
+            handler: 'CacheFirst',
+            options: { cacheName: 'kiosk-demo', expiration: { maxEntries: 3 } },
+          },
+        ],
         // 메뉴 사진 중에 2MB 에 가까운 원본이 있어 기본 한도(2MB)를 올려 둔다.
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
         // 오프라인에서 어느 주소로 들어와도 앱이 열리게 한다. base 를 포함해야 한다.
