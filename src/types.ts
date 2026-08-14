@@ -14,8 +14,16 @@ export type Sweetness = 'sweet' | 'plain'
  * ('산미', '바디감', '쓴맛' 같은 커피 전문 용어는 화면에도 여기에도 쓰지 않는다)
  */
 export type CoffeeTaste = 'light' | 'strong' | 'sweet'
-/** 식사 장소 */
+/** 드실 곳 — 매장에서 마시기 / 포장하기 */
 export type DineOption = 'store' | 'togo'
+
+/**
+ * 주문을 어떤 방법으로 시작했는지.
+ *
+ * '다시 고를래요' 를 눌렀을 때 어디로 되돌아갈지가 이 값에 달려 있다.
+ * 말로 시작하신 분을 버튼 질문 화면으로 보내면 하던 흐름이 끊기기 때문이다.
+ */
+export type EntryMode = 'voice' | 'button'
 
 /**
  * 사진 묶음.
@@ -47,6 +55,13 @@ export interface Menu {
   imageGroup: ImageGroup
   /** 메뉴 전용 사진이 따로 있으면 이 경로를 먼저 쓴다 (예: '/menu/special.jpg') */
   image?: string
+  /**
+   * 읽어 줄 때만 쓰는 이름. 없으면 화면에 보이는 name 을 그대로 읽는다.
+   *
+   * 화면에서는 짧아야 좋고, 읽을 때는 또박또박 들려야 좋아서 둘이 갈릴 때가 있다.
+   * (예: name '아메리카노 T' / speechText '아메리카노 큰 잔')
+   */
+  speechText?: string
 }
 
 /**

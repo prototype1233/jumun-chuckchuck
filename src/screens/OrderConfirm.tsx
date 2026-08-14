@@ -6,6 +6,7 @@ import ScreenLayout from '../components/ScreenLayout'
 import { useOrder } from '../context/OrderContext'
 import { useOnline } from '../hooks/useOnline'
 import { useScreenSpeech } from '../hooks/useSpeech'
+import { menuSpeech, priceToKorean } from '../lib/speech'
 import { cartCups, cartTotal, cupsLabel, itemTotal, won } from '../logic/cart'
 
 const TITLE = '이대로 주문할까요?'
@@ -32,11 +33,12 @@ export default function OrderConfirm() {
     if (!cart.length) navigate('/cart', { replace: true })
   }, [cart.length, navigate])
 
+  // 마지막으로 한 번 더 읽어 드리는 자리다. 값은 '만 이천원' 처럼 우리말로 읽는다.
   useScreenSpeech(
     cart.length
       ? `${TITLE} ${cart
-          .map((item) => `${item.menu.name} ${cupsLabel(item.quantity)}`)
-          .join(', ')}. 모두 ${cups}잔, ${won(total)}입니다. 맞으면 아래 이걸로 할게요 단추를 눌러 주세요.`
+          .map((item) => `${menuSpeech(item.menu)} ${cupsLabel(item.quantity)}`)
+          .join(', ')}. 모두 ${cups}잔, ${priceToKorean(total)}입니다. 맞으면 아래 이걸로 할게요 단추를 눌러 주세요.`
       : '',
   )
 

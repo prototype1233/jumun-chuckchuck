@@ -2,8 +2,9 @@ import { useNavigate } from 'react-router-dom'
 import Button from '../components/Button'
 import MenuImage from '../components/MenuImage'
 import ScreenLayout from '../components/ScreenLayout'
-import { useOrder } from '../context/OrderContext'
+import { pickAgainPath, useOrder } from '../context/OrderContext'
 import { useScreenSpeech } from '../hooks/useSpeech'
+import { priceToKorean } from '../lib/speech'
 import { cartCups, cartTotal, cupsLabel, itemTotal, won } from '../logic/cart'
 
 const TITLE = '담은 음료예요'
@@ -24,16 +25,21 @@ export default function Cart() {
   const total = cartTotal(cart)
   const cups = cartCups(cart)
 
+  // 값은 화면에는 '12,000원' 으로 적고, 읽어 줄 때만 '만 이천원' 으로 바꾼다.
   useScreenSpeech(
     cart.length
-      ? `${TITLE} 모두 ${cups}잔, ${won(total)}입니다. 더 담으시거나, 이대로 주문하실 수 있어요.`
+      ? `${TITLE} 모두 ${cups}잔, ${priceToKorean(total)}입니다. 더 담으시거나, 이대로 주문하실 수 있어요.`
       : '아직 담은 음료가 없어요. 음료 고르러 가기 단추를 눌러 주세요.',
   )
 
-  /** 처음 질문부터 다시 골라 담는다. 담아 둔 것은 그대로 둔다. */
+  /**
+   * 처음부터 다시 골라 담는다. 담아 둔 것은 그대로 둔다.
+   * 돌아갈 곳은 추천 화면의 [다시 고를래요] 와 같은 기준으로 정한다.
+   * (말로 시작하셨으면 말하는 화면으로)
+   */
   const goPickMore = () => {
     resetAnswers()
-    navigate('/q/1')
+    navigate(pickAgainPath(state.entryMode))
   }
 
   if (!cart.length) {

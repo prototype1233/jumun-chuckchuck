@@ -3,14 +3,18 @@ import { useNavigate } from 'react-router-dom'
 import Button from '../components/Button'
 import MenuImage from '../components/MenuImage'
 import ScreenLayout from '../components/ScreenLayout'
-import { useOrder } from '../context/OrderContext'
+import { pickAgainPath, useOrder } from '../context/OrderContext'
 import { MENUS } from '../data/menus'
 import { useScreenSpeech } from '../hooks/useSpeech'
 import { getFrequentMenuIds } from '../lib/history'
+import { menuSpeech, priceToKorean, speechOf } from '../lib/speech'
 import { recommendMenus } from '../logic/recommend'
 import type { Menu } from '../types'
 
 const TITLE = '이 세 가지를 추천드려요'
+
+/** 화면에는 제목만 두고, 소리로는 무엇을 하시면 되는지까지 알려 드린다. */
+const TITLE_SPEECH = '이 세 가지를 추천드려요. 마음에 드시는 것을 눌러주세요.'
 
 /**
  * 추천 카드 사진 크기.
@@ -37,7 +41,17 @@ export default function Result() {
   // 이 기기에서 여러 번 시킨 메뉴. 기록이 없으면 빈 값이라 배지도 나오지 않는다.
   const frequentIds = useMemo(() => new Set(getFrequentMenuIds()), [])
 
-  useScreenSpeech(`${TITLE}. 마음에 드는 것을 하나 눌러 주세요.`)
+  // 안내에 이어 추천 세 가지를 이름과 값으로 읽어 드린다.
+  // 화면 글씨가 잘 안 보이셔도 무엇을 얼마에 추천했는지는 귀로 아실 수 있어야 한다.
+  // 값은 '3,600원' 이 아니라 '삼천 육백원' 으로 읽는다. (lib/speech.ts 참고)
+  const speech = useMemo(() => {
+    const intro = speechOf(TITLE, TITLE_SPEECH)
+    if (!menus.length) return intro
+    const list = menus.map((menu) => `${menuSpeech(menu)}, ${priceToKorean(menu.price)}`).join('. ')
+    return `${intro} ${list}.`
+  }, [menus])
+
+  useScreenSpeech(speech)
 
   // 메뉴를 고르면 잔 수부터 정한다. 담기는 그 다음 화면에서 이뤄진다.
   const handlePick = (menu: Menu) => {
@@ -46,9 +60,12 @@ export default function Result() {
   }
 
   // 처음부터 다시 고른다. 답변을 비우고 가야 첫 질문이 아무것도 선택되지 않은 채로 나온다.
+  //
+  // 돌아갈 곳은 '어떻게 시작하셨는지' 에 달려 있다.
+  // 말로 주문하시던 분을 버튼 질문 화면으로 보내면 하시던 방식이 통째로 바뀌어 버린다.
   const handleRetry = () => {
     resetAnswers()
-    navigate('/q/1')
+    navigate(pickAgainPath(state.entryMode))
   }
 
   return (

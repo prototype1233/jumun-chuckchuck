@@ -64,7 +64,7 @@ type Phase =
  */
 export default function VoiceOrder() {
   const navigate = useNavigate()
-  const { setDine, selectMenu } = useOrder()
+  const { setDine, selectMenu, setEntryMode } = useOrder()
   const { speak, cancel } = useSpeech()
 
   const [phase, setPhase] = useState<Phase>('preparing')
@@ -77,7 +77,15 @@ export default function VoiceOrder() {
   /** 다시 켜기를 기다리는 중인 타이머 */
   const restartTimerRef = useRef(0)
 
-  /** 질문으로 고르는 원래 흐름으로 넘어간다. */
+  // 말로 시작한 주문이다. 나중에 [다시 고를래요] 를 누르시면 이 화면으로 돌아와야 한다.
+  useEffect(() => {
+    setEntryMode('voice')
+  }, [setEntryMode])
+
+  /**
+   * 버튼으로 고르는 원래 흐름으로 넘어간다.
+   * 넘어간 다음에는 버튼 흐름이 된다. (드실 곳 화면이 entryMode 를 'button' 으로 바꾼다)
+   */
   const goQuestions = useCallback(() => {
     navigate('/dine')
   }, [navigate])
@@ -85,7 +93,7 @@ export default function VoiceOrder() {
   /** 메뉴 하나로 정해졌을 때 — 잔 수 화면으로 바로 넘어간다. */
   const pickMenu = useCallback(
     (menu: Menu) => {
-      // 질문(식사 장소 포함)을 건너뛰었으므로 기본값을 넣어 둔다. 매장에서 다시 여쭤보지 않는다.
+      // 질문(드실 곳 포함)을 건너뛰었으므로 기본값을 넣어 둔다. 매장에서 다시 여쭤보지 않는다.
       setDine('store')
       selectMenu(menu)
       // 뒤로가기는 시작 화면으로. 마이크가 저절로 다시 켜지면 놀라시기 때문이다.
@@ -190,6 +198,12 @@ export default function VoiceOrder() {
     navigate('/')
   }
 
+  /** 말하는 것이 어려우실 때 언제든 버튼 방식으로 갈아탈 수 있게 한다. */
+  const handleUseButtons = () => {
+    stop()
+    goQuestions()
+  }
+
   const subtitle =
     phase === 'choosing'
       ? '드시고 싶은 것을 하나 눌러 주세요'
@@ -204,7 +218,7 @@ export default function VoiceOrder() {
       onBack={handleQuit}
       backLabel="처음으로"
       subtitle={subtitle}
-      footer={footerFor(phase, { handleQuit, handleRetry, goQuestions })}
+      footer={footerFor(phase, { handleQuit, handleRetry, goQuestions, handleUseButtons })}
     >
       {(phase === 'preparing' || phase === 'listening') && (
         <div className="flex flex-1 flex-col items-center justify-center">
@@ -306,13 +320,35 @@ export default function VoiceOrder() {
 /** 화면마다 아래에 놓는 버튼. 어느 경우에도 빠져나갈 길을 하나 이상 둔다. */
 function footerFor(
   phase: Phase,
-  actions: { handleQuit: () => void; handleRetry: () => void; goQuestions: () => void },
+  actions: {
+    handleQuit: () => void
+    handleRetry: () => void
+    goQuestions: () => void
+    handleUseButtons: () => void
+  },
 ) {
   if (phase === 'preparing' || phase === 'listening') {
     return (
-      <Button variant="outline" onClick={actions.handleQuit}>
-        그만두기
-      </Button>
+      <div className="flex flex-col items-center gap-1">
+        <Button variant="outline" onClick={actions.handleQuit}>
+          그만두기
+        </Button>
+        {/*
+          말이 잘 안 나오실 때를 위한 길. 말씀을 못 알아들을 때까지 기다리지 않아도 된다.
+          여기서는 버튼이 아니라 글씨 링크로 둔다. 큰 버튼을 하나 더 놓으면
+          [그만두기] 와 무게가 같아 보여서 무엇을 눌러야 할지 헷갈리기 때문이다.
+          (반대 방향 — 버튼 화면에서 말하기로 가는 링크 — 은 두지 않는다. 화면이 복잡해진다)
+        */}
+        <button
+          type="button"
+          onClick={actions.handleUseButtons}
+          // 글씨 링크지만 손가락으로 누르는 곳이라 위아래 여백으로 60px 넘는 터치 영역을 만든다.
+          // (하단 CTA 96px 만큼 키우면 [그만두기] 와 구별이 되지 않아 여기까지만 둔다)
+          className="flex items-center px-4 py-4 text-body font-semibold text-ink-sub underline underline-offset-4 active:scale-[0.98]"
+        >
+          버튼으로 고를래요
+        </button>
+      </div>
     )
   }
 

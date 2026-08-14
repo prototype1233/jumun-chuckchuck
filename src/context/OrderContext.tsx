@@ -7,6 +7,7 @@ import type {
   Category,
   CoffeeTaste,
   DineOption,
+  EntryMode,
   Menu,
   Sweetness,
   Store,
@@ -19,6 +20,11 @@ import type {
 interface OrderState {
   store: Store
   dine: DineOption | null
+  /**
+   * 이 주문을 말로 시작하셨는지, 버튼으로 시작하셨는지.
+   * '다시 고를래요' 가 어디로 돌아갈지를 정한다. (말로 시작 -> 말하는 화면으로)
+   */
+  entryMode: EntryMode
   answers: Answers
   /** 잔 수를 고르는 중인 메뉴 */
   selectedMenu: Menu | null
@@ -40,6 +46,7 @@ interface OrderState {
 
 type Action =
   | { type: 'setDine'; dine: DineOption }
+  | { type: 'setEntryMode'; mode: EntryMode }
   | { type: 'setCategory'; value: Category }
   | { type: 'setTemp'; value: 'ice' | 'hot' }
   | { type: 'setSweetness'; value: Sweetness }
@@ -60,6 +67,9 @@ function createInitialState(): OrderState {
   return {
     store: detectNearestStore(),
     dine: null,
+    // 시작 화면에서 [시작하기] 로 들어오는 것이 기본 흐름이다.
+    // [말로 주문하기] 로 들어오면 그 화면에서 'voice' 로 바꾼다.
+    entryMode: 'button',
     answers: { ...emptyAnswers },
     selectedMenu: null,
     cart: [],
@@ -74,6 +84,11 @@ function reducer(state: OrderState, action: Action): OrderState {
   switch (action.type) {
     case 'setDine':
       return { ...state, dine: action.dine }
+    case 'setEntryMode':
+      // 화면에 들어올 때마다 부르므로, 같은 값이면 상태를 그대로 돌려준다.
+      // (새 객체를 만들면 그것만으로 다시 그려지고, 그 화면이 또 부르는 일이 반복된다)
+      if (state.entryMode === action.mode) return state
+      return { ...state, entryMode: action.mode }
     case 'setCategory':
       // 종류를 바꾸면 세 번째 질문 자체가 바뀐다. (커피는 '어떤 맛', 음료는 '당도')
       // 앞서 고르신 답이 남아 있으면 묻지도 않은 답으로 추천이 나오므로 함께 비운다.
@@ -118,8 +133,9 @@ function reducer(state: OrderState, action: Action): OrderState {
       return { ...state, waitingNumber: action.waitingNumber, barcodeValue: action.barcodeValue }
     case 'resetAnswers':
       // '다시 고를래요' / '더 담을래요' — 질문 3개만 처음으로 되돌린다.
-      // 식사 장소(dine)와 매장은 다시 묻지 않으려고 그대로 둔다.
+      // 드실 곳(dine)과 매장은 다시 묻지 않으려고 그대로 둔다.
       // 담아 둔 장바구니(cart)도 그대로 둔다. 더 담으려고 돌아가는 것이기 때문이다.
+      // 어떻게 시작하셨는지(entryMode)도 그대로 둔다. 이 값이 바로 지금 어디로 돌아갈지를 정한다.
       // 추천 결과는 answers 에서 그때그때 계산하므로 answers 만 비우면 함께 사라진다.
       return {
         ...state,
@@ -128,7 +144,7 @@ function reducer(state: OrderState, action: Action): OrderState {
         waitingNumber: null,
       }
     case 'resetAll':
-      // 주문을 마치고 처음으로 — 식사 장소까지 포함해 전부 비운다.
+      // 주문을 마치고 처음으로 — 드실 곳과 시작 방법까지 포함해 전부 비운다.
       return createInitialState()
     default:
       return state
@@ -140,9 +156,19 @@ function createWaitingNumber(): string {
   return String(Math.floor(1000 + Math.random() * 9000))
 }
 
+/**
+ * '다시 고를래요' / '더 담을래요' 로 되돌아갈 화면.
+ * 말로 시작하신 분은 말하는 화면으로, 버튼으로 시작하신 분은 첫 질문으로 돌아간다.
+ */
+export function pickAgainPath(mode: EntryMode): string {
+  return mode === 'voice' ? '/voice' : '/q/1'
+}
+
 interface OrderContextValue {
   state: OrderState
   setDine: (dine: DineOption) => void
+  /** 주문을 시작한 방법을 기록한다. 각 입구 화면(말하기 / 드실 곳)이 들어올 때 부른다. */
+  setEntryMode: (mode: EntryMode) => void
   setCategory: (value: Category) => void
   setTemp: (value: 'ice' | 'hot') => void
   /** 음료를 고르셨을 때의 세 번째 답 */
@@ -155,9 +181,9 @@ interface OrderContextValue {
   removeFromCart: (menuId: string) => void
   clearCart: () => void
   confirmOrder: () => void
-  /** 질문 3개의 답변만 초기화 (식사 장소·매장·장바구니는 유지) */
+  /** 질문 3개의 답변만 초기화 (드실 곳·매장·장바구니·시작 방법은 유지) */
   resetAnswers: () => void
-  /** 식사 장소와 장바구니까지 포함해 주문 상태 전체를 초기화 */
+  /** 드실 곳과 장바구니까지 포함해 주문 상태 전체를 초기화 */
   resetAll: () => void
 }
 
@@ -170,6 +196,7 @@ export function OrderProvider({ children }: { children: ReactNode }) {
     () => ({
       state,
       setDine: (dine) => dispatch({ type: 'setDine', dine }),
+      setEntryMode: (mode) => dispatch({ type: 'setEntryMode', mode }),
       setCategory: (value) => dispatch({ type: 'setCategory', value }),
       setTemp: (value) => dispatch({ type: 'setTemp', value }),
       setSweetness: (value) => dispatch({ type: 'setSweetness', value }),

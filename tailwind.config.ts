@@ -36,7 +36,7 @@ export default {
         question: ['34px', { lineHeight: '46px', letterSpacing: '-0.02em' }],
         btn: ['28px', { lineHeight: '36px', letterSpacing: '-0.02em' }],
         'card-title': ['26px', { lineHeight: '34px', letterSpacing: '-0.02em' }],
-        // 식사 장소 카드처럼 선택지가 둘뿐이라 더 크게 보여 줄 수 있는 자리 (28px -> 32px)
+        // 드실 곳 카드처럼 선택지가 둘뿐이라 더 크게 보여 줄 수 있는 자리 (28px -> 32px)
         'choice-title': ['32px', { lineHeight: '42px', letterSpacing: '-0.02em' }],
         // 카드 안의 한 줄 설명 — 18px 는 작아서 안 읽힌다고 하셔서 22px 로 올렸다.
         caption: ['22px', { lineHeight: '28px', letterSpacing: '-0.01em' }],

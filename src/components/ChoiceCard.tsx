@@ -12,7 +12,7 @@ interface ChoiceCardProps {
    * 제목 크기.
    * - default: 26px
    * - large:   28px — 부연 설명 없이 라벨만 크게 보여 주는 질문 화면용
-   * - dine:    32px — 선택지가 둘뿐인 식사 장소 화면용
+   * - dine:    32px — 선택지가 둘뿐인 드실 곳 화면용
    */
   emphasis?: 'default' | 'large' | 'dine'
   /**
@@ -31,7 +31,7 @@ const TITLE_CLASS: Record<NonNullable<ChoiceCardProps['emphasis']>, string> = {
 }
 
 /**
- * 글씨가 커진 만큼 좌우 여백을 줄여, 커진 뒤에도 '매장에서 먹기' 같은 말이
+ * 글씨가 커진 만큼 좌우 여백을 줄여, 커진 뒤에도 '매장에서 마시기' 같은 말이
  * 한 줄에 들어가게 한다. (글씨를 줄이는 대신 여백을 줄인다)
  */
 const PADDING_CLASS: Record<NonNullable<ChoiceCardProps['emphasis']>, string> = {

@@ -17,6 +17,7 @@ import {
 import { useOrder } from '../context/OrderContext'
 import { useAutoAdvance } from '../hooks/useAutoAdvance'
 import { useScreenSpeech } from '../hooks/useSpeech'
+import { speechOf } from '../lib/speech'
 import type { Category, CoffeeTaste, Sweetness, Temp } from '../types'
 
 /** 질문 3개 — 화면 구조가 같아 한 컴포넌트로 처리한다. */
@@ -27,8 +28,13 @@ type StepValue = string
 interface StepConfig {
   /** 질문. 좁은 화면에서 줄이 바뀔 자리를 이 덩어리로 정한다. (QuestionTitle 참고) */
   question: string[]
-  /** 음성으로 읽어 줄 문장 (질문 + 선택지 안내) */
-  speech: string
+  /**
+   * 읽어 줄 문장. 적어 두지 않으면 화면의 질문을 그대로 읽는다.
+   *
+   * 화면 글씨는 짧을수록 읽기 쉽고, 읽어 주는 말은 선택지까지 알려 줘야 알아듣기 쉬워서
+   * 둘이 갈리는 질문에만 따로 적는다.
+   */
+  speechText?: string
   subtitle: string
   options: {
     value: StepValue
@@ -42,8 +48,8 @@ interface StepConfig {
 /** 종류·온도 — 커피든 음료든 똑같이 여쭙는다. */
 const STEPS: Record<number, StepConfig> = {
   1: {
+    // 화면 글씨만으로 충분한 질문이라 speechText 를 두지 않는다. (화면 글씨를 그대로 읽는다)
     question: ['어떤 메뉴를', '준비해 드릴까요?'],
-    speech: '어떤 메뉴를 준비해 드릴까요? 커피와 음료 중에서 골라 주세요.',
     subtitle: '고르시면 다음 질문으로 넘어가요',
     options: [
       { value: 'coffee', label: '커피', icon: <CoffeeIcon size={64} /> },
@@ -52,7 +58,7 @@ const STEPS: Record<number, StepConfig> = {
   },
   2: {
     question: ['온도는 어떻게', '하시겠어요?'],
-    speech: '온도는 어떻게 하시겠어요? 시원한 것과 따뜻한 것 중에서 골라 주세요.',
+    speechText: '온도는 어떻게 하시겠어요? 차갑게, 따뜻하게 중에 골라주세요.',
     subtitle: '고르시면 다음 질문으로 넘어가요',
     options: [
       { value: 'ice', label: '시원함', icon: <ColdIcon size={64} /> },
@@ -66,7 +72,7 @@ const STEPS: Record<number, StepConfig> = {
  */
 const STEP3_BEVERAGE: StepConfig = {
   question: ['당도는 어떻게', '맞춰드릴까요?'],
-  speech: '당도는 어떻게 맞춰드릴까요? 달콤한 맛과 담백한 맛 중에서 골라 주세요.',
+  speechText: '당도는 어떻게 맞춰드릴까요? 달콤한 맛과 담백한 맛 중에 골라주세요.',
   subtitle: '마지막 질문이에요',
   options: [
     { value: 'sweet', label: '달콤함', icon: <SweetIcon size={64} /> },
@@ -86,7 +92,7 @@ const STEP3_BEVERAGE: StepConfig = {
  */
 const STEP3_COFFEE: StepConfig = {
   question: ['어떤 맛으로', '드릴까요?'],
-  speech: '어떤 맛으로 드릴까요? 연하게, 진하게, 달콤하게 중에서 골라 주세요.',
+  speechText: '어떤 맛으로 드릴까요? 연하게, 진하게, 달콤하게 중에 골라주세요.',
   subtitle: '마지막 질문이에요',
   options: [
     { value: 'light', label: '연하게', caption: '부드럽고 순한 맛', icon: <DropIcon size={64} /> },
@@ -98,7 +104,7 @@ const STEP3_COFFEE: StepConfig = {
 export default function Question() {
   const { step: stepParam } = useParams()
   const navigate = useNavigate()
-  const { state, setCategory, setTemp, setSweetness, setCoffeeTaste } = useOrder()
+  const { state, setCategory, setTemp, setSweetness, setCoffeeTaste, setEntryMode } = useOrder()
   const { advance, cancel } = useAutoAdvance()
 
   const step = Number(stepParam)
@@ -111,7 +117,13 @@ export default function Question() {
     if (!config) navigate('/dine', { replace: true })
   }, [config, navigate])
 
-  useScreenSpeech(config ? config.speech : '')
+  // 질문 화면을 지나셨다면 버튼으로 고르는 흐름이다. (드실 곳 화면을 건너뛰고 들어와도 마찬가지)
+  useEffect(() => {
+    setEntryMode('button')
+  }, [setEntryMode])
+
+  // speechText 를 적어 둔 질문은 그 문장을, 없으면 화면의 질문을 그대로 읽는다.
+  useScreenSpeech(config ? speechOf(config.question.join(' '), config.speechText) : '')
 
   if (!config) return null
 

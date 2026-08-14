@@ -6,6 +6,7 @@ import ScreenLayout from '../components/ScreenLayout'
 import { useOrder } from '../context/OrderContext'
 import { useAutoAdvance } from '../hooks/useAutoAdvance'
 import { useScreenSpeech } from '../hooks/useSpeech'
+import { menuSpeech } from '../lib/speech'
 import { cupsLabel, won } from '../logic/cart'
 
 const QUESTION = '몇 잔 드릴까요?'
@@ -47,7 +48,7 @@ export default function Quantity() {
   }, [menu, navigate, backTo])
 
   useScreenSpeech(
-    menu ? `${menu.name} ${QUESTION} 한 잔, 두 잔, 세 잔 중에서 골라 주세요.` : '',
+    menu ? `${menuSpeech(menu)} ${QUESTION} 한 잔, 두 잔, 세 잔 중에 골라주세요.` : '',
   )
 
   if (!menu) return null
