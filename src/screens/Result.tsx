@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Button from '../components/Button'
 import MenuImage from '../components/MenuImage'
@@ -8,35 +8,79 @@ import { MENUS } from '../data/menus'
 import { useScreenSpeech } from '../hooks/useSpeech'
 import { getFrequentMenuIds } from '../lib/history'
 import { menuSpeech, priceToKorean, speechOf } from '../lib/speech'
-import { recommendMenus } from '../logic/recommend'
+import { RECOMMEND_COUNT, recommendMenus } from '../logic/recommend'
 import type { Menu } from '../types'
 
-const TITLE = '이 세 가지를 추천드려요'
+/**
+ * 화면 제목은 지금 보고 계신 것이 '처음 추천' 인지 '넘겨 본 다음 것' 인지에 따라 달라진다.
+ * 제목이 그대로면 눌렀는데 아무 일도 없었나 싶어진다.
+ */
+const TITLE_FIRST = '이 세 가지를 추천드려요'
+const TITLE_MORE = '다른 메뉴예요'
 
 /** 화면에는 제목만 두고, 소리로는 무엇을 하시면 되는지까지 알려 드린다. */
-const TITLE_SPEECH = '이 세 가지를 추천드려요. 마음에 드시는 것을 눌러주세요.'
+const TITLE_FIRST_SPEECH = '이 세 가지를 추천드려요. 마음에 드시는 것을 눌러주세요.'
+const TITLE_MORE_SPEECH = '다른 메뉴예요. 마음에 드시는 것을 눌러주세요.'
 
 /**
  * 추천 카드 사진 크기.
  *
- * 세 장이 스크롤 없이 들어가야 한다. (390x844 기준)
- * 카드 높이를 정하는 것은 사진이 아니라 오른쪽 글이다.
- *   배지 28 + 이름 32 + 가격 32 + 설명 30 = 122, 여기에 위아래 여백 12 = 134
- *   세 장 + 사이 간격 = 134 x 3 + 8 x 2 = 418
+ * 사진을 줄이는 것은 높이를 줄이려는 것이 아니라, 오른쪽 글자 폭을 넓혀
+ * 이름이 두 줄로 넘어가지 않게(=카드가 높아지지 않게) 하려는 것이다.
  *
- * 그래서 사진을 줄이는 것은 높이를 줄이려는 것이 아니라, 오른쪽 글자 폭을 넓혀
- * 이름과 설명이 두 줄로 넘어가지 않게(=카드가 높아지지 않게) 하려는 것이다.
- *   글자 폭 = 342 - 여백 12 - 사진 84 - 사이 12 = 234px
- *   가장 긴 이름 '시원한 바닐라 라떼'(26px) 가 216px 이라 한 줄에 들어간다.
+ * 이름을 26px 에서 30px 로 키우면서 가장 긴 이름이 216px -> 250px 가 됐다.
+ * 사진이 84px 이면 글자 폭이 234px 밖에 안 남아 '시원한 바닐라 / 라떼' 로 잘린다.
+ *   글자 폭 = 342 - 카드 여백 12 - 사진 64 - 사이 12 = 254px  (250px > 234px 였던 것을 되돌린다)
+ * 그래서 설명을 걷어내며 사진을 84px -> 64px 로 줄였다. 세로로 남은 자리는
+ * 사진을 키우는 데 쓰지 않고 그대로 여백으로 둔다. (아래 CARD_HEIGHT 참고)
  */
-const IMAGE_SIZE = 84
+const IMAGE_SIZE = 64
+
+/**
+ * 카드 높이 — 설명이 있던 때와 똑같이 못 박아 둔다.
+ *
+ * 설명 한 줄(30px)이 빠졌다고 카드가 낮아지면 화면이 통째로 조여든 느낌이 난다.
+ * 높이는 그대로 두고, 남은 자리는 다른 것으로 채우지 않고 글자 사이 여백으로만 벌린다.
+ *   배지 있는 카드 134px — 배지 24 + 이름 40 + 값 34 + 사이 12 x 2 + 카드 여백 12
+ *   배지 없는 카드 106px — 이름 40 + 값 34 + 사이 12 + 카드 여백 12, 남는 8px 은 위아래로 나뉜다
+ *
+ * min-h 로 두는 것은 글씨가 큰 기기에서 이름이 두 줄이 되더라도 잘리지 않게 하기 위해서다.
+ */
+const CARD_HEIGHT = { withBadge: 'min-h-[134px]', plain: 'min-h-[106px]' } as const
+
+/**
+ * offset 부터 세 개를 잘라 온다. 끝에 닿으면 앞에서 이어 받아 언제나 세 장을 채운다.
+ *
+ * 후보가 네 개일 때 두 번째 화면이 [4번, 1번, 2번] 처럼 겹치는데, 그렇더라도
+ * 카드가 두 장만 나오는 것보다 낫다. 화면 모양이 들쭉날쭉하면 그것부터 당황스럽다.
+ */
+function pageOf(candidates: Menu[], offset: number): Menu[] {
+  if (candidates.length <= RECOMMEND_COUNT) return candidates
+  return Array.from(
+    { length: RECOMMEND_COUNT },
+    (_, i) => candidates[(offset + i) % candidates.length],
+  )
+}
 
 /** 6. 추천 결과 — 세 개 중 하나를 누르면 바로 주문이 접수된다. */
 export default function Result() {
   const navigate = useNavigate()
   const { state, selectMenu, resetAnswers } = useOrder()
 
-  const menus = useMemo(() => recommendMenus(state.answers, MENUS), [state.answers])
+  // 조건에 맞는 후보 '전부' 를 인기순으로 받아 둔다. 세 개씩 끊는 것은 여기서 한다.
+  const candidates = useMemo(() => recommendMenus(state.answers, MENUS), [state.answers])
+
+  // 지금 몇 번째 메뉴부터 보고 있는지. [다른 메뉴 보기] 를 누를 때마다 세 칸씩 밀린다.
+  const [offset, setOffset] = useState(0)
+
+  const menus = useMemo(() => pageOf(candidates, offset), [candidates, offset])
+
+  // 후보가 한 화면(세 개)을 넘지 않으면 [다른 메뉴 보기] 를 아예 만들지 않는다.
+  // 눌러도 같은 메뉴가 다시 나오는 버튼은 없는 것만 못하다.
+  const hasMore = candidates.length > RECOMMEND_COUNT
+
+  // 처음 보시는 화면인지 — 제목과 '가장 인기 있어요' 배지가 여기에 달려 있다.
+  const isFirstPage = offset === 0
 
   // 이 기기에서 여러 번 시킨 메뉴. 기록이 없으면 빈 값이라 배지도 나오지 않는다.
   const frequentIds = useMemo(() => new Set(getFrequentMenuIds()), [])
@@ -44,12 +88,17 @@ export default function Result() {
   // 안내에 이어 추천 세 가지를 이름과 값으로 읽어 드린다.
   // 화면 글씨가 잘 안 보이셔도 무엇을 얼마에 추천했는지는 귀로 아실 수 있어야 한다.
   // 값은 '3,600원' 이 아니라 '삼천 육백원' 으로 읽는다. (lib/speech.ts 참고)
+  //
+  // 메뉴를 넘기면 이 문장이 통째로 바뀌므로 useScreenSpeech 가 새 세 가지를 다시 읽어 준다.
+  // 눈으로 못 보신 분도 화면이 바뀐 것을 아셔야 한다.
   const speech = useMemo(() => {
-    const intro = speechOf(TITLE, TITLE_SPEECH)
+    const intro = isFirstPage
+      ? speechOf(TITLE_FIRST, TITLE_FIRST_SPEECH)
+      : speechOf(TITLE_MORE, TITLE_MORE_SPEECH)
     if (!menus.length) return intro
     const list = menus.map((menu) => `${menuSpeech(menu)}, ${priceToKorean(menu.price)}`).join('. ')
     return `${intro} ${list}.`
-  }, [menus])
+  }, [menus, isFirstPage])
 
   useScreenSpeech(speech)
 
@@ -59,11 +108,26 @@ export default function Result() {
     navigate('/quantity')
   }
 
+  /**
+   * 같은 답변 그대로, 다음 순위 세 개를 보여 드린다.
+   *
+   * 끝까지 보시면 아무 말 없이 처음 세 개로 돌아간다.
+   * '더 이상 없어요' 를 띄우면 막다른 곳에 몰린 느낌이 든다. 계속 넘겨 보실 수 있어야 한다.
+   */
+  const handleShowMore = () => {
+    setOffset((prev) => {
+      const next = prev + RECOMMEND_COUNT
+      return next >= candidates.length ? 0 : next
+    })
+  }
+
   // 처음부터 다시 고른다. 답변을 비우고 가야 첫 질문이 아무것도 선택되지 않은 채로 나온다.
+  // 몇 번째 메뉴를 보고 있었는지도 함께 되돌린다. 새로 고르신 답의 결과는 1등부터 보여야 한다.
   //
   // 돌아갈 곳은 '어떻게 시작하셨는지' 에 달려 있다.
   // 말로 주문하시던 분을 버튼 질문 화면으로 보내면 하시던 방식이 통째로 바뀌어 버린다.
   const handleRetry = () => {
+    setOffset(0)
     resetAnswers()
     navigate(pickAgainPath(state.entryMode))
   }
@@ -73,21 +137,37 @@ export default function Result() {
       onBack={() => navigate('/q/3')}
       subtitle="드시고 싶은 것을 하나 눌러 주세요"
       footer={
-        <Button variant="outline" onClick={handleRetry}>
-          다시 고를래요
-        </Button>
+        // 버튼 사이는 8px. 두 개가 들어가도 390x844 에서 카드가 밀려나지 않는 간격이다.
+        <div className="flex flex-col gap-2">
+          {hasMore && (
+            <Button variant="outline" onClick={handleShowMore}>
+              다른 메뉴 보기
+            </Button>
+          )}
+          <Button variant="outline" onClick={handleRetry}>
+            다시 고를래요
+          </Button>
+        </div>
       }
     >
-      <h1 className="break-keep text-question font-bold text-ink">{TITLE}</h1>
+      <h1 className="break-keep text-question font-bold text-ink">
+        {isFirstPage ? TITLE_FIRST : TITLE_MORE}
+      </h1>
 
       {/* 세 장이 스크롤 없이 들어가야 하는 자리다.
-          글씨 크기는 노안 대응 기준이라 줄이지 않고, 사진 크기와 여백으로만 맞춘다. */}
-      <div className="mt-2 flex flex-col gap-2">
+          글씨 크기는 노안 대응 기준이라 줄이지 않고, 사진 크기와 여백으로만 맞춘다.
+
+          key={offset}: 메뉴가 바뀔 때마다 이 자리를 새로 그려 200ms 페이드를 다시 재생한다.
+          움직임 없이 색만 스며들게 한다 — 화면이 툭 바뀌면 잘못 눌렀나 싶어 놀라신다. */}
+      <div key={offset} className="mt-2 flex animate-fade flex-col gap-2">
         {menus.map((menu, index) => {
           // 배지는 카드당 하나만. 둘 다 해당하면 '자주 드시던 것' 을 먼저 보여 준다.
+          //
+          // '가장 인기 있어요' 는 첫 화면의 1등에만 붙인다.
+          // 넘겨 본 화면의 맨 위는 4등·7등이라 같은 배지를 또 붙이면 거짓말이 된다.
           const badge = frequentIds.has(menu.id)
             ? { text: '자주 드시던 것', color: 'bg-brand-deep' }
-            : index === 0
+            : isFirstPage && index === 0
               ? { text: '가장 인기 있어요', color: 'bg-brand' }
               : null
 
@@ -96,30 +176,27 @@ export default function Result() {
               key={menu.id}
               type="button"
               onClick={() => handlePick(menu)}
-              className="flex w-full items-center gap-3 rounded-card bg-surface p-1.5 text-left shadow-card transition-transform duration-150 active:scale-[0.99]"
+              className={`flex w-full items-center gap-3 rounded-card bg-surface p-1.5 text-left shadow-card transition-transform duration-150 active:scale-[0.99] ${
+                badge ? CARD_HEIGHT.withBadge : CARD_HEIGHT.plain
+              }`}
             >
               {/* 추천 3장은 바로 보여야 하므로 eager 로 불러온다 */}
-              <MenuImage menu={menu} size={IMAGE_SIZE} radius={20} eager />
+              <MenuImage menu={menu} size={IMAGE_SIZE} radius={16} eager />
 
-              <span className="flex min-w-0 flex-1 flex-col">
+              {/* 사진 · 이름 · 값, 이 셋뿐이다. 한 줄 설명은 걷어냈다.
+                  justify-center + gap-3: 남은 자리를 다른 것으로 채우지 않고 사이 여백으로 벌린다. */}
+              <span className="flex min-w-0 flex-1 flex-col justify-center gap-3">
                 {badge && (
                   <span
-                    className={`mb-1 w-fit rounded-full ${badge.color} px-3 text-sub font-semibold leading-[24px] text-white`}
+                    className={`w-fit rounded-full ${badge.color} px-3 text-sub font-semibold leading-[24px] text-white`}
                   >
                     {badge.text}
                   </span>
                 )}
                 {/* break-keep: 한글이 낱말 중간에서 끊기지 않게 한다 ('아메리카 / 노' 방지) */}
-                <span className="break-keep text-card-title font-bold leading-[32px] text-ink">
-                  {menu.name}
-                </span>
-                <span className="mt-0.5 text-price font-bold leading-[30px] text-brand">
+                <span className="break-keep text-menu font-bold text-ink">{menu.name}</span>
+                <span className="text-card-price font-bold text-brand">
                   {menu.price.toLocaleString('ko-KR')}원
-                </span>
-                {/* 설명 22px — 18px 는 작아서 안 읽힌다고 하셔서 키웠다.
-                    이 크기에서 한 줄에 들어가도록 메뉴 설명은 아홉 글자 안팎으로 쓴다. */}
-                <span className="mt-0.5 truncate text-caption font-medium text-ink-sub">
-                  {menu.description}
                 </span>
               </span>
             </button>

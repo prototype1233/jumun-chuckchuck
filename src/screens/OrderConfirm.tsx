@@ -74,7 +74,7 @@ export default function OrderConfirm() {
         </div>
       }
     >
-      <h1 className="text-question font-bold text-ink">{TITLE}</h1>
+      <h1 className="text-screen-title font-bold text-ink">{TITLE}</h1>
 
       <ul className="mt-6 flex flex-col gap-4">
         {cart.map((item) => (

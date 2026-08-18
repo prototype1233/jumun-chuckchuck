@@ -81,7 +81,7 @@ export default function OrderComplete() {
             그래서 이 덩어리는 줄어들지도 스크롤되지도 않게 고정한다. */}
         <div className="flex shrink-0 flex-col items-center">
           <CheckCircleIcon size={48} className="text-brand" />
-          <h1 className="mt-2 text-question font-bold text-ink">주문이 준비됐어요</h1>
+          <h1 className="mt-2 text-screen-title font-bold text-ink">주문이 준비됐어요</h1>
 
           <p className="mt-3 text-sub font-semibold text-ink-sub">대기번호</p>
           <p className="text-waiting font-black text-ink">{waitingNumber}</p>

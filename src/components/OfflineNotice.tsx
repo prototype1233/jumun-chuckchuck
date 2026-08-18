@@ -19,7 +19,7 @@ export default function OfflineNotice({ onRetry, onBack }: OfflineNoticeProps) {
       <div className="flex flex-1 flex-col items-center justify-center text-center">
         <NoSignalIcon />
 
-        <h1 className="mt-8 break-keep text-question font-bold text-ink">
+        <h1 className="mt-8 break-keep text-screen-title font-bold text-ink">
           인터넷 연결을 확인해 주세요
         </h1>
         <p className="mt-4 break-keep text-body font-medium text-ink-sub">

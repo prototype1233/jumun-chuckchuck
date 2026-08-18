@@ -5,8 +5,11 @@
  *
  * 식사 장소를 뺀 모든 질문 조합(종류 × 온도 × 맛)을 돌면서
  *   1) 조건을 하나도 풀지 않고 딱 맞는 메뉴가 3개 이상인지
- *   2) 조합이 다른데 추천 결과가 똑같지는 않은지
+ *   2) 조합이 다른데 첫 화면 추천 3개가 똑같지는 않은지
  * 를 확인하고 결과를 콘솔에 찍는다.
+ *
+ * 후보가 3개를 넘는 조합에는 추천 화면에 [다른 메뉴 보기] 가 나온다.
+ * 그 조합에는 '+n' 으로 넘겨 볼 수 있는 메뉴가 몇 개 더 있는지 함께 찍는다.
  *
  * 하나라도 걸리면 1번으로 끝난다. (메뉴를 지우거나 옮긴 뒤에 꼭 한 번 돌려 볼 것)
  *
@@ -23,7 +26,11 @@ console.log(`\n메뉴 ${MENUS.length}개 · 조합 ${results.length}가지 · �
 for (const combo of results) {
   const mark = combo.ok ? '✅' : '⚠️ '
   const names = combo.recommended.map((menu) => menu.name).join(', ')
-  console.log(`${mark} ${combo.label.padEnd(20)} 딱 맞는 메뉴 ${combo.exactCount}개`)
+  // [다른 메뉴 보기] 로 더 볼 수 있는 메뉴 수. 없으면 그 버튼이 아예 나오지 않는다.
+  const more = combo.hasMore
+    ? `· 더 볼 메뉴 ${combo.candidateCount - RECOMMEND_COUNT}개`
+    : '· [다른 메뉴 보기] 없음'
+  console.log(`${mark} ${combo.label.padEnd(20)} 딱 맞는 메뉴 ${combo.exactCount}개 ${more}`)
   console.log(`   → ${names}`)
 }
 

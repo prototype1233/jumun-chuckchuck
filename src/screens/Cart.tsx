@@ -49,7 +49,7 @@ export default function Cart() {
         subtitle="더 담으시거나 주문하실 수 있어요"
         footer={<Button onClick={goPickMore}>음료 고르러 가기</Button>}
       >
-        <h1 className="text-question font-bold text-ink">{TITLE}</h1>
+        <h1 className="text-screen-title font-bold text-ink">{TITLE}</h1>
         <p className="mt-8 text-body font-medium text-ink-sub">아직 담은 음료가 없어요</p>
       </ScreenLayout>
     )
@@ -71,7 +71,7 @@ export default function Cart() {
         </div>
       }
     >
-      <h1 className="text-question font-bold text-ink">{TITLE}</h1>
+      <h1 className="text-screen-title font-bold text-ink">{TITLE}</h1>
 
       {/* 390x844 에서 두 줄까지는 스크롤 없이 들어가야 해서 간격을 넉넉함의 하한으로 잡았다. */}
       <ul className="mt-4 flex flex-col gap-3">

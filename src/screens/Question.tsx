@@ -4,16 +4,6 @@ import ChoiceCard from '../components/ChoiceCard'
 import ProgressDots from '../components/ProgressDots'
 import QuestionTitle from '../components/QuestionTitle'
 import ScreenLayout from '../components/ScreenLayout'
-import {
-  BeanIcon,
-  CoffeeIcon,
-  ColdIcon,
-  DrinkIcon,
-  DropIcon,
-  HotIcon,
-  PlainIcon,
-  SweetIcon,
-} from '../components/Icons'
 import { useOrder } from '../context/OrderContext'
 import { useAutoAdvance } from '../hooks/useAutoAdvance'
 import { useScreenSpeech } from '../hooks/useSpeech'
@@ -36,12 +26,18 @@ interface StepConfig {
    */
   speechText?: string
   subtitle: string
+  /**
+   * 선택지는 라벨 한 줄뿐이다.
+   *
+   * 예전에는 64px 아이콘과 '부드럽고 순한 맛' 같은 22px 한 줄 설명이 함께 있었다.
+   * 둘 다 걷어내고 그 자리를 라벨 크기(44px)에 줬다.
+   * 무엇이 다른지는 speechText 의 음성 안내와 자막 바가 알려 드린다.
+   *
+   * 라벨은 네 글자를 넘기지 않는다. 44px 에서 다섯 글자가 되면 375px 화면에서 줄이 바뀐다.
+   */
   options: {
     value: StepValue
     label: string
-    /** 한 줄 설명. 말만으로는 무엇이 다른지 알기 어려운 선택지에만 붙인다. */
-    caption?: string
-    icon: React.ReactNode
   }[]
 }
 
@@ -49,11 +45,13 @@ interface StepConfig {
 const STEPS: Record<number, StepConfig> = {
   1: {
     // 화면 글씨만으로 충분한 질문이라 speechText 를 두지 않는다. (화면 글씨를 그대로 읽는다)
-    question: ['어떤 메뉴를', '준비해 드릴까요?'],
+    // 46px 에서 '준비해 드릴까요?'(351px) 는 화면 폭(342px)을 넘는다.
+    // 덩어리를 셋으로 끊어 '어떤 메뉴를 / 준비해 / 드릴까요?' 세 줄로 흐르게 한다.
+    question: ['어떤 메뉴를', '준비해', '드릴까요?'],
     subtitle: '고르시면 다음 질문으로 넘어가요',
     options: [
-      { value: 'coffee', label: '커피', icon: <CoffeeIcon size={64} /> },
-      { value: 'beverage', label: '음료', icon: <DrinkIcon size={64} /> },
+      { value: 'coffee', label: '커피' },
+      { value: 'beverage', label: '음료' },
     ],
   },
   2: {
@@ -61,8 +59,8 @@ const STEPS: Record<number, StepConfig> = {
     speechText: '온도는 어떻게 하시겠어요? 차갑게, 따뜻하게 중에 골라주세요.',
     subtitle: '고르시면 다음 질문으로 넘어가요',
     options: [
-      { value: 'ice', label: '시원함', icon: <ColdIcon size={64} /> },
-      { value: 'hot', label: '따뜻함', icon: <HotIcon size={64} /> },
+      { value: 'ice', label: '시원함' },
+      { value: 'hot', label: '따뜻함' },
     ],
   },
 }
@@ -75,8 +73,8 @@ const STEP3_BEVERAGE: StepConfig = {
   speechText: '당도는 어떻게 맞춰드릴까요? 달콤한 맛과 담백한 맛 중에 골라주세요.',
   subtitle: '마지막 질문이에요',
   options: [
-    { value: 'sweet', label: '달콤함', icon: <SweetIcon size={64} /> },
-    { value: 'plain', label: '담백함', icon: <PlainIcon size={64} /> },
+    { value: 'sweet', label: '달콤함' },
+    { value: 'plain', label: '담백함' },
   ],
 }
 
@@ -95,9 +93,9 @@ const STEP3_COFFEE: StepConfig = {
   speechText: '어떤 맛으로 드릴까요? 연하게, 진하게, 달콤하게 중에 골라주세요.',
   subtitle: '마지막 질문이에요',
   options: [
-    { value: 'light', label: '연하게', caption: '부드럽고 순한 맛', icon: <DropIcon size={64} /> },
-    { value: 'strong', label: '진하게', caption: '깊고 묵직한 맛', icon: <BeanIcon size={64} /> },
-    { value: 'sweet', label: '달콤하게', caption: '우유와 단맛', icon: <SweetIcon size={64} /> },
+    { value: 'light', label: '연하게' },
+    { value: 'strong', label: '진하게' },
+    { value: 'sweet', label: '달콤하게' },
   ],
 }
 
@@ -160,13 +158,14 @@ export default function Question() {
 
       <QuestionTitle lines={config.question} className="mt-6" />
 
-      <div className={compact ? 'mt-6 flex flex-col gap-4' : 'mt-8 flex flex-col gap-5'}>
+      {/* 질문과 카드 사이 여백 — 질문이 46px 로 커지며 두세 줄이 되어 좁혔다.
+          선택지 둘: 32 -> 24px / 선택지 셋: 24 -> 16px.
+          글자 크기는 그대로 두고 여백부터 내주는 순서다. */}
+      <div className={compact ? 'mt-4 flex flex-col gap-4' : 'mt-6 flex flex-col gap-5'}>
         {config.options.map((option) => (
           <ChoiceCard
             key={option.value}
-            icon={option.icon}
             title={option.label}
-            caption={option.caption}
             emphasis="large"
             size={compact ? 'compact' : 'default'}
             selected={selected === option.value}

@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom'
 import ChoiceCard from '../components/ChoiceCard'
 import QuestionTitle from '../components/QuestionTitle'
 import ScreenLayout from '../components/ScreenLayout'
-import { MugIcon, TakeoutIcon } from '../components/Icons'
 import { useOrder } from '../context/OrderContext'
 import { useAutoAdvance } from '../hooks/useAutoAdvance'
 import { useScreenSpeech } from '../hooks/useSpeech'
@@ -49,21 +48,20 @@ export default function DineOption() {
       <QuestionTitle lines={QUESTION_LINES} />
 
       <div className="mt-8 flex flex-col gap-5">
-        {/* emphasis="dine": 제목 32px + 설명 22px.
-            글씨가 커진 만큼 카드 좌우 여백을 줄여(ChoiceCard 참고) 제목은 한 줄에 들어가고,
-            설명은 줄이 바뀌더라도 '들고 나가실 수 / 있어요' 처럼 낱말 단위로만 나뉜다. */}
+        {/* emphasis="dine": 카드 한가운데 라벨(36px) 하나뿐이다.
+            64px 아이콘과 '가게 안에서 드세요' 같은 보조 설명을 모두 걷어냈다.
+
+            질문 화면 라벨은 44px 인데 여기만 36px 인 것은 '매장에서 마시기' 가 일곱 글자라서다.
+            아이콘이 빠지며 글자 자리가 216px -> 281px(375 화면)로 넓어져 36px 은 한 줄에 들어가지만,
+            44px 이면 313px 이 필요해 '매장에서 / 마시기' 로 접힌다. */}
         <ChoiceCard
-          icon={<MugIcon size={64} />}
           title="매장에서 마시기"
-          caption="가게 안에서 드세요"
           emphasis="dine"
           selected={state.dine === 'store'}
           onClick={() => advance('/q/1', () => setDine('store'))}
         />
         <ChoiceCard
-          icon={<TakeoutIcon size={64} />}
           title="포장하기"
-          caption="들고 나가실 수 있어요"
           emphasis="dine"
           selected={state.dine === 'togo'}
           onClick={() => advance('/q/1', () => setDine('togo'))}

@@ -67,7 +67,7 @@ export default function Quantity() {
         <p className="mt-1 text-amount font-semibold text-brand">{won(menu.price)}</p>
       </div>
 
-      <h1 className="mt-8 text-question font-bold text-ink">{QUESTION}</h1>
+      <h1 className="mt-8 text-screen-title font-bold text-ink">{QUESTION}</h1>
 
       <div className="mt-6 grid grid-cols-3 gap-4">
         {COUNTS.map((count) => (

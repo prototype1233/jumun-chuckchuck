@@ -9,13 +9,13 @@
  * ── 조합마다 결과가 달라야 한다 ──────────────────────────────────
  * 조합이 다른데 같은 메뉴 셋이 나오면 '내가 고른 것이 반영됐나' 싶어진다.
  * 그런 일은 딱 맞는 메뉴가 3개가 안 돼서 조건을 풀 때 생긴다.
- * 그래서 메뉴 데이터에 조합마다 3개씩을 두었고, checkCombos() 로 확인한다.
+ * 그래서 메뉴 데이터에 조합마다 3개 이상을 두었고, checkCombos() 로 확인한다.
  *   npm run check:combos
  *
  * ── 나중에 LLM 추천으로 바꾸는 방법 ────────────────────────────────
  * 1. RecommendationEngine 인터페이스를 그대로 구현하는 LlmEngine 클래스를 만든다.
  *      class LlmEngine implements RecommendationEngine {
- *        recommend(answers, menus) { ...서버에 답변을 보내고 메뉴 3개를 돌려받는다... }
+ *        recommend(answers, menus) { ...서버에 답변을 보내고 후보 목록을 돌려받는다... }
  *      }
  *    (비동기가 필요하면 인터페이스 반환 타입을 Promise<Menu[]> 로 바꾸고
  *     Result 화면에서 useEffect 로 받아 쓰면 된다.)
@@ -26,11 +26,23 @@
  */
 import type { Answers, Category, CoffeeTaste, Menu, Sweetness, Temp } from '../types'
 
-/** 추천 개수 — 한 화면에 세 개까지만 보여준다. */
+/**
+ * 한 화면에 보여 주는 개수 — 세 개.
+ *
+ * 추천 자체는 이 개수로 잘리지 않는다. recommend() 는 조건에 맞는 후보를 전부
+ * 돌려주고, 세 개씩 끊어 보여 주는 것은 화면(screens/Result.tsx)이 한다.
+ * [다른 메뉴 보기] 가 그 다음 세 개를 꺼내 쓰기 때문이다.
+ */
 export const RECOMMEND_COUNT = 3
 
 export interface RecommendationEngine {
-  /** 답변과 전체 메뉴를 받아 추천 메뉴를 돌려준다. 절대 빈 배열을 돌려주지 않는다. */
+  /**
+   * 답변과 전체 메뉴를 받아 '추천 후보 전체' 를 인기순으로 돌려준다.
+   * 절대 빈 배열을 돌려주지 않는다.
+   *
+   * 앞에서부터 RECOMMEND_COUNT 개가 첫 화면에 나가고, 그 뒤는 [다른 메뉴 보기] 로
+   * 이어서 보여 준다. 그래서 순서가 곧 추천 순위다.
+   */
   recommend(answers: Answers, menus: Menu[]): Menu[]
 }
 
@@ -79,10 +91,13 @@ function exactMatches(answers: Answers, menus: Menu[]): Menu[] {
     .sort(byPopularity)
 }
 
-/** 이미 담긴 메뉴는 건너뛰고 목표 개수까지 채운다. */
-function fill(picked: Menu[], candidates: Menu[], count: number): void {
+/**
+ * 이미 담긴 메뉴는 건너뛰고 인기순으로 뒤에 이어 붙인다.
+ * limit 을 주면 그 개수에 닿는 순간 멈춘다. (안 주면 후보를 전부 붙인다)
+ */
+function append(picked: Menu[], candidates: Menu[], limit = Number.POSITIVE_INFINITY): void {
   for (const menu of candidates.slice().sort(byPopularity)) {
-    if (picked.length >= count) return
+    if (picked.length >= limit) return
     if (picked.some((m) => m.id === menu.id)) continue
     picked.push(menu)
   }
@@ -91,25 +106,34 @@ function fill(picked: Menu[], candidates: Menu[], count: number): void {
 /**
  * 규칙 기반 추천.
  * 조건을 단계적으로 완화해서 결과가 0개가 되는 일이 없도록 보장한다.
- *   1단계: 종류 + 온도 + 맛(당도) 모두 일치   <- 메뉴가 충분하면 여기서 끝난다
+ *   1단계: 종류 + 온도 + 맛(당도) 모두 일치   <- 여기서 나온 것을 '전부' 돌려준다
  *   2단계: 맛(당도) 조건 완화 (종류 + 온도)
  *   3단계: 온도 조건까지 완화 (종류)
  *   4단계: 전체 메뉴에서 인기순
  *
+ * ── 1단계만 전부, 2단계부터는 세 개까지 ─────────────────────────────
+ * 1단계에서 나온 메뉴는 고르신 답에 '딱 맞는' 메뉴다. 그래서 몇 개가 나오든
+ * 전부 돌려준다. [다른 메뉴 보기] 로 넘겨 보시는 것이 바로 이 뒷부분이다.
+ *
+ * 2단계 아래는 조건을 푼 자리다. 고르신 답과 다른 메뉴이므로 화면 하나를 채우는
+ * RECOMMEND_COUNT 개까지만 쓴다. 여기까지 내려온 조합에서는 [다른 메뉴 보기] 가
+ * 아예 나오지 않는다 — 안 맞는 메뉴를 계속 넘겨 보시게 할 이유가 없기 때문이다.
+ *
  * 2단계 아래로 내려가면 조합이 달라도 결과가 겹치기 시작한다.
  * 그래서 2단계는 '있으면 안 되는 안전장치' 로 두고, 평소에는 1단계에서 끝나도록
- * 메뉴 데이터를 조합마다 3개씩 채워 둔다. (checkCombos 로 확인)
+ * 메뉴 데이터를 조합마다 세 개 이상 채워 둔다. (checkCombos 로 확인)
+ * ─────────────────────────────────────────────────────────────────
  */
 export class RuleBasedEngine implements RecommendationEngine {
   recommend(answers: Answers, menus: Menu[]): Menu[] {
     const picked: Menu[] = []
 
-    // 1단계 — 세 조건 모두 만족
-    fill(picked, exactMatches(answers, menus), RECOMMEND_COUNT)
+    // 1단계 — 세 조건 모두 만족하는 메뉴는 개수 제한 없이 전부 담는다.
+    append(picked, exactMatches(answers, menus))
 
     // 2단계 — 맛(당도) 완화
     if (picked.length < RECOMMEND_COUNT) {
-      fill(
+      append(
         picked,
         menus.filter((m) => matchesCategory(m, answers.category) && matchesTemp(m, answers.temp)),
         RECOMMEND_COUNT,
@@ -118,7 +142,7 @@ export class RuleBasedEngine implements RecommendationEngine {
 
     // 3단계 — 온도까지 완화
     if (picked.length < RECOMMEND_COUNT) {
-      fill(
+      append(
         picked,
         menus.filter((m) => matchesCategory(m, answers.category)),
         RECOMMEND_COUNT,
@@ -127,7 +151,7 @@ export class RuleBasedEngine implements RecommendationEngine {
 
     // 4단계 — 최후 보루: 전체 메뉴 인기순
     if (picked.length < RECOMMEND_COUNT) {
-      fill(picked, menus, RECOMMEND_COUNT)
+      append(picked, menus, RECOMMEND_COUNT)
     }
 
     return picked
@@ -137,7 +161,10 @@ export class RuleBasedEngine implements RecommendationEngine {
 /** 현재 사용 중인 엔진. LLM으로 교체할 때 이 한 줄만 바꾸면 된다. */
 const defaultEngine: RecommendationEngine = new RuleBasedEngine()
 
-/** 화면에서 쓰는 진입점 */
+/**
+ * 화면에서 쓰는 진입점.
+ * 조건에 맞는 후보를 인기순으로 '전부' 돌려준다. 세 개씩 끊는 것은 화면이 한다.
+ */
 export function recommendMenus(
   answers: Answers,
   menus: Menu[],
@@ -173,10 +200,14 @@ export interface ComboCheck {
   answers: Answers
   /** 조건을 하나도 풀지 않고 딱 맞는 메뉴 수 */
   exactCount: number
-  /** 실제로 추천되는 메뉴 (조건 완화까지 거친 최종 결과) */
+  /** 추천 후보 전체 수 (조건 완화까지 거친 최종 목록의 길이) */
+  candidateCount: number
+  /** 첫 화면에 보이는 메뉴 (후보 앞에서 RECOMMEND_COUNT 개) */
   recommended: Menu[]
   /** 추천 3개가 모두 '딱 맞는 메뉴' 로만 채워졌는지 */
   ok: boolean
+  /** 후보가 화면 하나보다 많아서 [다른 메뉴 보기] 가 나오는 조합인지 */
+  hasMore: boolean
 }
 
 /**
@@ -228,13 +259,16 @@ export function comboLabel(answers: Answers): string {
 export function checkCombos(menus: Menu[]): ComboCheck[] {
   return listCombos().map((answers) => {
     const exact = exactMatches(answers, menus)
-    const recommended = recommendMenus(answers, menus)
+    const candidates = recommendMenus(answers, menus)
     return {
       label: comboLabel(answers),
       answers,
       exactCount: exact.length,
-      recommended,
+      candidateCount: candidates.length,
+      // 화면과 똑같이 앞에서 세 개만 본다. (겹치는 조합 검사도 이 세 개로 한다)
+      recommended: candidates.slice(0, RECOMMEND_COUNT),
       ok: exact.length >= RECOMMEND_COUNT,
+      hasMore: candidates.length > RECOMMEND_COUNT,
     }
   })
 }

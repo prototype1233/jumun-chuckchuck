@@ -1,58 +1,51 @@
-import type { ReactNode } from 'react'
 import { CheckCircleIcon } from './Icons'
 
 interface ChoiceCardProps {
-  icon: ReactNode
   title: string
-  /** 한 줄 부연 설명 (없으면 제목만 크게) */
-  caption?: string
   selected: boolean
   onClick: () => void
   /**
-   * 제목 크기.
-   * - default: 26px
-   * - large:   28px — 부연 설명 없이 라벨만 크게 보여 주는 질문 화면용
-   * - dine:    32px — 선택지가 둘뿐인 드실 곳 화면용
+   * 라벨 크기. 화면마다 가장 긴 라벨이 달라서 크기도 갈린다.
+   * - large: 44px — 질문 화면. 가장 긴 라벨이 '달콤하게'(네 글자)라 크게 키울 수 있다.
+   * - dine:  36px — 드실 곳 화면. '매장에서 마시기'(일곱 글자)가 한 줄에 들어가는 상한이다.
    */
-  emphasis?: 'default' | 'large' | 'dine'
+  emphasis: 'large' | 'dine'
   /**
    * 카드 높이.
    * - default: 180px — 선택지가 둘일 때
-   * - compact: 160px — 선택지가 셋일 때. 세 장이 스크롤 없이 한 화면에 들어가게 한다.
+   * - compact: 148px — 선택지가 셋일 때. 세 장이 스크롤 없이 한 화면에 들어가게 한다.
+   *
+   * compact 는 질문이 46px 로 커지면서 160px -> 148px 로 줄였다. 질문과 카드 사이
+   * 여백을 먼저 내주고도 390x844 에서 12px 이 모자랐다. 라벨(44px)은 그대로 두고
+   * 카드만 낮춘다 — 글씨를 줄이는 것보다 카드가 낮아지는 편이 낫다.
+   * 낮춰도 라벨 위아래로 46px 씩 남는다.
    */
   size?: 'default' | 'compact'
 }
 
-/** 제목 크기별 글자 토큰 */
-const TITLE_CLASS: Record<NonNullable<ChoiceCardProps['emphasis']>, string> = {
-  default: 'text-card-title',
-  large: 'text-btn',
+/** 라벨 크기별 글자 토큰 */
+const TITLE_CLASS: Record<ChoiceCardProps['emphasis'], string> = {
+  large: 'text-choice-label',
   dine: 'text-choice-title',
 }
 
 /**
- * 글씨가 커진 만큼 좌우 여백을 줄여, 커진 뒤에도 '매장에서 마시기' 같은 말이
- * 한 줄에 들어가게 한다. (글씨를 줄이는 대신 여백을 줄인다)
- */
-const PADDING_CLASS: Record<NonNullable<ChoiceCardProps['emphasis']>, string> = {
-  default: 'px-7 gap-6',
-  large: 'px-7 gap-6',
-  dine: 'px-5 gap-4',
-}
-
-/**
- * 선택 카드.
+ * 선택 카드 — 카드 한가운데 라벨 한 줄뿐이다.
+ *
+ * 예전에는 왼쪽에 64px 아이콘이, 라벨 아래에 22px 보조 설명이 있었다.
+ * 둘 다 걷어내고 그 자리를 전부 라벨에 줬다. 그림으로 무엇인지 짐작하시게 하는 것보다
+ * 글자를 크게 키워 바로 읽히게 하는 쪽이 낫다는 피드백이다.
+ * 무엇이 다른지는 음성 안내와 자막 바가 알려 드린다.
+ *
  * - 평소: 흰 배경 + 부드러운 그림자, 테두리 없음
  * - 선택: 3px brand 테두리 + brand-tint 배경 + 우상단 체크
  * 테두리는 항상 3px 자리를 차지하게 두어 선택할 때 화면이 흔들리지 않게 했다.
  */
 export default function ChoiceCard({
-  icon,
   title,
-  caption,
   selected,
   onClick,
-  emphasis = 'default',
+  emphasis,
   size = 'default',
 }: ChoiceCardProps) {
   return (
@@ -61,27 +54,22 @@ export default function ChoiceCard({
       onClick={onClick}
       aria-pressed={selected}
       className={[
-        'relative flex w-full items-center rounded-card border-[3px] text-left',
-        PADDING_CLASS[emphasis],
-        size === 'compact' ? 'h-[160px]' : 'h-[180px]',
+        // justify-center + text-center: 아이콘이 빠진 자리를 왼쪽에 남기지 않고 라벨을 한가운데 둔다.
+        'relative flex w-full items-center justify-center rounded-card border-[3px] px-5 text-center',
+        size === 'compact' ? 'h-[148px]' : 'h-[180px]',
         'transition-[background-color,border-color,transform] duration-150 active:scale-[0.99]',
         selected
           ? 'border-brand bg-brand-tint shadow-card-selected'
           : 'border-transparent bg-surface shadow-card',
       ].join(' ')}
     >
-      <span className={selected ? 'shrink-0 text-brand' : 'shrink-0 text-ink'}>{icon}</span>
-
-      <span className="flex min-w-0 flex-col gap-1">
-        {/* break-keep: 줄이 바뀌더라도 '매장에서 / 먹기' 처럼 낱말 단위로만 나뉘게 한다 */}
-        <span className={['break-keep font-semibold text-ink', TITLE_CLASS[emphasis]].join(' ')}>
-          {title}
-        </span>
-        {caption && (
-          <span className="break-keep text-caption font-medium text-ink-sub">{caption}</span>
-        )}
+      {/* break-keep: 만에 하나 줄이 바뀌더라도 '매장에서 / 마시기' 처럼 낱말 단위로만 나뉘게 한다.
+          (지금 쓰는 라벨은 375px 화면에서도 전부 한 줄에 들어간다) */}
+      <span className={['break-keep font-semibold text-ink', TITLE_CLASS[emphasis]].join(' ')}>
+        {title}
       </span>
 
+      {/* 체크는 카드 우상단에 절대 배치. 라벨은 세로 가운데라 서로 부딪히지 않는다. */}
       {selected && <CheckCircleIcon size={34} className="absolute right-5 top-5 text-brand" />}
     </button>
   )
