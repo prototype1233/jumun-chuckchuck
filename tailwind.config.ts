@@ -34,48 +34,65 @@ export default {
       fontSize: {
         // [크기, 줄간격] — 고령자 가독성을 위해 줄간격을 넉넉히 잡는다.
         //
+        // 값이 var(--fs-*) 인 것은 화면 세로 길이에 따라 줄어드는 글자다.
+        // 실제 숫자는 src/index.css 의 토큰에 적혀 있다.
+        // 휴대폰 세로 화면에서는 아래 주석에 적힌 px 값 그대로 나온다. (줄어드는 것은 데스크톱뿐)
+        //
         // question — 여쭙는 글. 질문 3개 · 드실 곳 · 추천 결과 제목이 쓴다.
-        // 34px 로는 멀리서 안 읽힌다고 하셔서 46px 로 올렸다. 줄간격은 1.3배(60px).
-        // 46px 이면 '준비해 드릴까요?' 한 덩어리가 390 화면 폭을 넘으므로,
-        // 질문을 끊는 자리(QuestionTitle 의 lines)도 함께 잘게 나눠 두었다.
-        question: ['46px', { lineHeight: '60px', letterSpacing: '-0.02em' }],
+        // 46px 로도 아직 작다고 하셔서 56px 로 올렸다. 줄간격은 1.25배(70px).
+        // 56px 에서 한 줄에 들어가는 한글은 375px 화면 기준 다섯 자다.
+        // 질문을 끊는 자리(QuestionTitle 의 lines)도 그 폭에 맞춰 다시 나눴다.
+        question: ['var(--fs-question)', { lineHeight: 'var(--lh-question)', letterSpacing: '-0.02em' }],
         // screen-title — 여쭙는 글이 아닌 화면 제목 (장바구니 · 주문 확인 · 주문 완료 · 잔 수).
-        // question 이 46px 로 올라가면서 갈라져 나온 예전 크기 그대로다.
-        'screen-title': ['34px', { lineHeight: '46px', letterSpacing: '-0.02em' }],
-        btn: ['28px', { lineHeight: '36px', letterSpacing: '-0.02em' }],
-        'card-title': ['26px', { lineHeight: '34px', letterSpacing: '-0.02em' }],
-        // 드실 곳 카드 — 아이콘까지 걷어내고 라벨만 남겼다.
-        // 여기만 44px 이 아닌 것은 '매장에서 마시기' 가 일곱 글자라서다.
-        // 44px 이면 375px 화면에서 두 줄로 접힌다. (한 줄에 들어가는 상한이 36px)
-        'choice-title': ['36px', { lineHeight: '46px', letterSpacing: '-0.02em' }],
-        // 질문 화면 선택 카드 라벨 — 아이콘을 걷어낸 자리를 전부 글씨에 줬다 (28px -> 44px).
-        // 가장 긴 라벨이 '달콤하게'(네 글자, 172px)라 375px 화면에서도 넉넉하다.
-        'choice-label': ['44px', { lineHeight: '56px', letterSpacing: '-0.02em' }],
+        // question 이 46px 로 올라가면서 갈라져 나온 예전 크기 그대로다. (34px)
+        'screen-title': ['var(--fs-screen-title)', { lineHeight: 'var(--lh-screen-title)', letterSpacing: '-0.02em' }],
+        // 버튼 라벨 (시작하기 · 다음 · 다시 고를래요 …) — 28px -> 34px
+        btn: ['var(--fs-btn)', { lineHeight: 'var(--lh-btn)', letterSpacing: '-0.02em' }],
+        // 하단 자막 바 — body(20px) 와 함께 쓰다가 26px 로 갈라져 나왔다.
+        // 자막은 화면마다 반드시 읽히는 한 문장이라 본문보다 크게 둔다.
+        subtitle: ['var(--fs-subtitle)', { lineHeight: 'var(--lh-subtitle)', letterSpacing: '-0.01em' }],
+        // 좌측 상단 뒤로가기 — 24px 를 박아 쓰던 것을 30px 토큰으로 옮겼다.
+        back: ['var(--fs-back)', { lineHeight: 'var(--lh-back)', letterSpacing: '-0.02em' }],
+        // 26px
+        'card-title': ['var(--fs-card-title)', { lineHeight: 'var(--lh-card-title)', letterSpacing: '-0.02em' }],
+        // 드실 곳 카드 — 아이콘까지 걷어내고 라벨만 남겼다. (36px -> 44px)
+        // 여기만 52px 이 아닌 것은 '매장에서 마시기' 가 일곱 글자라서다.
+        // 44px 이 375px 화면에서 한 줄에 들어가는 상한이다. (269px / 카드 안쪽 폭 281px)
+        // 46px 이면 284px 라 '매장에서 / 마시기' 로 접힌다.
+        'choice-title': ['var(--fs-choice-title)', { lineHeight: 'var(--lh-choice-title)', letterSpacing: '-0.02em' }],
+        // 질문 화면 선택 카드 라벨 — 44px 도 작다고 하셔서 52px 로 올렸다.
+        // 가장 긴 라벨이 '달콤하게'(네 글자)라 375px 화면에서도 한 줄에 들어간다.
+        'choice-label': ['var(--fs-choice-label)', { lineHeight: 'var(--lh-choice-label)', letterSpacing: '-0.02em' }],
+        // 아래 넷은 접근성 최소 크기(본문 20px)에 걸려 있어 어떤 화면에서도 줄이지 않는다.
+        //
         // 카드 안의 한 줄 설명 — 지금은 쓰는 곳이 없다.
         // (추천 카드·선택 카드의 보조 설명을 모두 걷어냈다. 24px 아래 글씨를 없애기 위해서다)
         caption: ['22px', { lineHeight: '28px', letterSpacing: '-0.01em' }],
         body: ['20px', { lineHeight: '30px', letterSpacing: '-0.01em' }],
         sub: ['18px', { lineHeight: '28px', letterSpacing: '-0.01em' }],
         price: ['22px', { lineHeight: '30px', letterSpacing: '-0.01em' }],
-        // 추천 카드의 값 — 설명을 걷어낸 자리를 글씨 크기로 돌려준다 (22px -> 26px).
+        // 추천 카드의 값 — 26px 도 작다고 하셔서 32px 로 올렸다.
         // 다른 화면(장바구니·주문 확인 등)의 값은 price 그대로 두고 여기만 키운다.
-        'card-price': ['26px', { lineHeight: '34px', letterSpacing: '-0.01em' }],
-        // 잔 수 선택 화면에서 고른 메뉴를 확인시켜 주는 크기
-        menu: ['30px', { lineHeight: '40px', letterSpacing: '-0.02em' }],
-        amount: ['24px', { lineHeight: '32px', letterSpacing: '-0.01em' }],
-        // 잔 수 카드의 큰 숫자
-        count: ['48px', { lineHeight: '56px', letterSpacing: '-0.02em' }],
-        // 장바구니 총 금액
-        total: ['32px', { lineHeight: '42px', letterSpacing: '-0.02em' }],
-        waiting: ['96px', { lineHeight: '104px', letterSpacing: '0.02em' }],
+        'card-price': ['var(--fs-card-price)', { lineHeight: 'var(--lh-card-price)', letterSpacing: '-0.01em' }],
+        // 추천 결과의 메뉴 이름 · 잔 수 화면에서 고른 메뉴 (30px -> 36px)
+        menu: ['var(--fs-menu)', { lineHeight: 'var(--lh-menu)', letterSpacing: '-0.02em' }],
+        // 24px
+        amount: ['var(--fs-amount)', { lineHeight: 'var(--lh-amount)', letterSpacing: '-0.01em' }],
+        // 잔 수 카드의 큰 숫자 (48px)
+        count: ['var(--fs-count)', { lineHeight: 'var(--lh-count)', letterSpacing: '-0.02em' }],
+        // 장바구니 총 금액 (32px)
+        total: ['var(--fs-total)', { lineHeight: 'var(--lh-total)', letterSpacing: '-0.02em' }],
+        // 대기번호 (96px)
+        waiting: ['var(--fs-waiting)', { lineHeight: 'var(--lh-waiting)', letterSpacing: '0.02em' }],
       },
       borderRadius: {
         card: '28px',
         cta: '24px',
       },
       spacing: {
-        touch: '88px', // 최소 터치 영역 높이
-        cta: '96px', // 하단 CTA 버튼 높이
+        // 화면이 짧으면 줄어들되 72px 아래로는 내려가지 않는다. (src/index.css 토큰)
+        touch: 'var(--h-touch)', // 최소 터치 영역 높이 (휴대폰 88px)
+        cta: 'var(--h-cta)', // 하단 CTA 버튼 높이 (휴대폰 96px)
       },
       boxShadow: {
         // 테두리 대신 아주 부드러운 그림자만 사용한다.

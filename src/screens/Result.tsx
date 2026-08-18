@@ -15,7 +15,13 @@ import type { Menu } from '../types'
  * 화면 제목은 지금 보고 계신 것이 '처음 추천' 인지 '넘겨 본 다음 것' 인지에 따라 달라진다.
  * 제목이 그대로면 눌렀는데 아무 일도 없었나 싶어진다.
  */
-const TITLE_FIRST = '이 세 가지를 추천드려요'
+/*
+ * 56px 에서 한 줄에 들어가야 한다. 두 줄이 되면 70px 을 더 먹어
+ * 카드 세 장과 아래 버튼 두 개가 한 화면에 들어가지 못한다.
+ * ('이 세 가지를 추천드려요' 는 505px 라 375px 화면에서 두 줄이 된다)
+ * 화면에서 덜어낸 말은 아래 TITLE_*_SPEECH 가 그대로 읽어 드린다.
+ */
+const TITLE_FIRST = '이 세 가지예요'
 const TITLE_MORE = '다른 메뉴예요'
 
 /** 화면에는 제목만 두고, 소리로는 무엇을 하시면 되는지까지 알려 드린다. */
@@ -23,30 +29,33 @@ const TITLE_FIRST_SPEECH = '이 세 가지를 추천드려요. 마음에 드시�
 const TITLE_MORE_SPEECH = '다른 메뉴예요. 마음에 드시는 것을 눌러주세요.'
 
 /**
- * 추천 카드 사진 크기.
+ * 추천 카드 사진 크기 — 화면 크기에 따라 달라진다. (실제 값은 src/index.css 의 --img-recommend)
  *
- * 사진을 줄이는 것은 높이를 줄이려는 것이 아니라, 오른쪽 글자 폭을 넓혀
- * 이름이 두 줄로 넘어가지 않게(=카드가 높아지지 않게) 하려는 것이다.
+ * 사진을 크게 보여 달라는 요청과 '카드 3장이 스크롤 없이' 는 좁은 화면에서 함께 지킬 수 없다.
+ * 그래서 화면이 허락하는 만큼만 키운다 — 390x844 는 120px, 375x667 은 44px.
  *
- * 이름을 26px 에서 30px 로 키우면서 가장 긴 이름이 216px -> 250px 가 됐다.
- * 사진이 84px 이면 글자 폭이 234px 밖에 안 남아 '시원한 바닐라 / 라떼' 로 잘린다.
- *   글자 폭 = 342 - 카드 여백 12 - 사진 64 - 사이 12 = 254px  (250px > 234px 였던 것을 되돌린다)
- * 그래서 설명을 걷어내며 사진을 84px -> 64px 로 줄였다. 세로로 남은 자리는
- * 사진을 키우는 데 쓰지 않고 그대로 여백으로 둔다. (아래 CARD_HEIGHT 참고)
+ * 이 값은 카드 안에서 두 가지를 한꺼번에 정한다.
+ *   1) 카드 높이 — 사진 + 카드 위아래 여백 12px (index.css 의 --h-recommend-* 가 calc 로 따라온다)
+ *   2) 이름이 쓸 수 있는 폭 — 화면 폭 - 48 - 카드 여백 12 - 사진 - 사이 6
+ * 사진이 커질수록 이름 폭이 좁아져 줄이 늘고, 그만큼 카드가 다시 높아진다.
+ * 그래서 사진을 키울 때는 반드시 이름이 몇 줄이 되는지까지 함께 봐야 한다.
  */
-const IMAGE_SIZE = 64
+const IMAGE_SIZE = 'var(--img-recommend)'
+
+/** 사진 모서리 둥글기 */
+const IMAGE_RADIUS = 20
 
 /**
- * 카드 높이 — 설명이 있던 때와 똑같이 못 박아 둔다.
+ * 카드 높이 — 사진을 따라간다. (사진 + 카드 위아래 여백 12px)
  *
- * 설명 한 줄(30px)이 빠졌다고 카드가 낮아지면 화면이 통째로 조여든 느낌이 난다.
- * 높이는 그대로 두고, 남은 자리는 다른 것으로 채우지 않고 글자 사이 여백으로만 벌린다.
- *   배지 있는 카드 134px — 배지 24 + 이름 40 + 값 34 + 사이 12 x 2 + 카드 여백 12
- *   배지 없는 카드 106px — 이름 40 + 값 34 + 사이 12 + 카드 여백 12, 남는 8px 은 위아래로 나뉜다
- *
- * min-h 로 두는 것은 글씨가 큰 기기에서 이름이 두 줄이 되더라도 잘리지 않게 하기 위해서다.
+ * min-h 로 두는 것은 이름이 여러 줄이 되면 카드가 알아서 늘어나야 하기 때문이다.
+ * 배지가 있는 카드와 없는 카드의 토큰을 따로 두는 것은, 글이 사진보다 높아지는
+ * 좁은 화면에서 둘의 높이가 갈리기 때문이다. (src/index.css 의 --h-recommend-*)
  */
-const CARD_HEIGHT = { withBadge: 'min-h-[134px]', plain: 'min-h-[106px]' } as const
+const CARD_HEIGHT = {
+  withBadge: 'min-h-[var(--h-recommend-badge)]',
+  plain: 'min-h-[var(--h-recommend-plain)]',
+} as const
 
 /**
  * offset 부터 세 개를 잘라 온다. 끝에 닿으면 앞에서 이어 받아 언제나 세 장을 채운다.
@@ -135,10 +144,10 @@ export default function Result() {
   return (
     <ScreenLayout
       onBack={() => navigate('/q/3')}
-      subtitle="드시고 싶은 것을 하나 눌러 주세요"
+      subtitle="드시고 싶은 것을 눌러 주세요"
       footer={
         // 버튼 사이는 8px. 두 개가 들어가도 390x844 에서 카드가 밀려나지 않는 간격이다.
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-1.5">
           {hasMore && (
             <Button variant="outline" onClick={handleShowMore}>
               다른 메뉴 보기
@@ -159,7 +168,7 @@ export default function Result() {
 
           key={offset}: 메뉴가 바뀔 때마다 이 자리를 새로 그려 200ms 페이드를 다시 재생한다.
           움직임 없이 색만 스며들게 한다 — 화면이 툭 바뀌면 잘못 눌렀나 싶어 놀라신다. */}
-      <div key={offset} className="mt-2 flex animate-fade flex-col gap-2">
+      <div key={offset} className="mt-1 flex animate-fade flex-col gap-1.5">
         {menus.map((menu, index) => {
           // 배지는 카드당 하나만. 둘 다 해당하면 '자주 드시던 것' 을 먼저 보여 준다.
           //
@@ -176,16 +185,16 @@ export default function Result() {
               key={menu.id}
               type="button"
               onClick={() => handlePick(menu)}
-              className={`flex w-full items-center gap-3 rounded-card bg-surface p-1.5 text-left shadow-card transition-transform duration-150 active:scale-[0.99] ${
+              className={`flex w-full items-center gap-1.5 rounded-card bg-surface p-1.5 text-left shadow-card transition-transform duration-150 active:scale-[0.99] ${
                 badge ? CARD_HEIGHT.withBadge : CARD_HEIGHT.plain
               }`}
             >
               {/* 추천 3장은 바로 보여야 하므로 eager 로 불러온다 */}
-              <MenuImage menu={menu} size={IMAGE_SIZE} radius={16} eager />
+              <MenuImage menu={menu} size={IMAGE_SIZE} radius={IMAGE_RADIUS} eager />
 
               {/* 사진 · 이름 · 값, 이 셋뿐이다. 한 줄 설명은 걷어냈다.
                   justify-center + gap-3: 남은 자리를 다른 것으로 채우지 않고 사이 여백으로 벌린다. */}
-              <span className="flex min-w-0 flex-1 flex-col justify-center gap-3">
+              <span className="flex min-w-0 flex-1 flex-col justify-center gap-[var(--gap-in-card)]">
                 {badge && (
                   <span
                     className={`w-fit rounded-full ${badge.color} px-3 text-sub font-semibold leading-[24px] text-white`}

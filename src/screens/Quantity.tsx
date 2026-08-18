@@ -11,8 +11,12 @@ import { cupsLabel, won } from '../logic/cart'
 
 const QUESTION = '몇 잔 드릴까요?'
 
-/** 고른 메뉴를 크게 확인시켜 주는 사진 크기 */
-const IMAGE_SIZE = 200
+/**
+ * 고른 메뉴를 크게 확인시켜 주는 사진 크기.
+ * 휴대폰에서는 200px, 창이 짧은 데스크톱에서는 화면 높이에 맞춰 줄어든다.
+ * (src/index.css 의 --img-menu-lg — 최소 104px)
+ */
+const IMAGE_SIZE = 'var(--img-menu-lg)'
 
 /**
  * 네 잔 이상은 장바구니에서 같은 메뉴를 다시 담으면 된다.
@@ -63,13 +67,15 @@ export default function Quantity() {
       <div className="flex flex-col items-center">
         <MenuImage menu={menu} size={IMAGE_SIZE} radius={28} eager />
 
-        <p className="mt-5 break-keep text-center text-menu font-bold text-ink">{menu.name}</p>
+        <p className="mt-[var(--gap-card)] break-keep text-center text-menu font-bold text-ink">
+          {menu.name}
+        </p>
         <p className="mt-1 text-amount font-semibold text-brand">{won(menu.price)}</p>
       </div>
 
-      <h1 className="mt-8 text-screen-title font-bold text-ink">{QUESTION}</h1>
+      <h1 className="mt-[var(--stack-lg)] text-screen-title font-bold text-ink">{QUESTION}</h1>
 
-      <div className="mt-6 grid grid-cols-3 gap-4">
+      <div className="mt-[var(--stack-md)] grid grid-cols-3 gap-[var(--gap-card-sm)]">
         {COUNTS.map((count) => (
           <CountCard
             key={count}
@@ -106,7 +112,7 @@ function CountCard({ count, selected, onClick }: CountCardProps) {
       onClick={onClick}
       aria-pressed={selected}
       className={[
-        'relative flex h-[150px] flex-col items-center justify-center gap-1 rounded-card border-[3px]',
+        'relative flex h-[var(--h-count)] flex-col items-center justify-center gap-1 rounded-card border-[3px]',
         'transition-[background-color,border-color,transform] duration-150 active:scale-[0.99]',
         selected
           ? 'border-brand bg-brand-tint shadow-card-selected'

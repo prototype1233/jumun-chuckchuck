@@ -6,19 +6,19 @@ interface ChoiceCardProps {
   onClick: () => void
   /**
    * 라벨 크기. 화면마다 가장 긴 라벨이 달라서 크기도 갈린다.
-   * - large: 44px — 질문 화면. 가장 긴 라벨이 '달콤하게'(네 글자)라 크게 키울 수 있다.
-   * - dine:  36px — 드실 곳 화면. '매장에서 마시기'(일곱 글자)가 한 줄에 들어가는 상한이다.
+   * - large: 52px — 질문 화면. 가장 긴 라벨이 '달콤하게'(네 글자)라 크게 키울 수 있다.
+   * - dine:  44px — 드실 곳 화면. '매장에서 마시기'(일곱 글자)가 한 줄에 들어가는 상한이다.
    */
   emphasis: 'large' | 'dine'
   /**
-   * 카드 높이.
-   * - default: 180px — 선택지가 둘일 때
-   * - compact: 148px — 선택지가 셋일 때. 세 장이 스크롤 없이 한 화면에 들어가게 한다.
+   * 카드 높이. 아래 px 는 휴대폰 세로 화면의 값이고, 창이 짧으면 함께 낮아진다.
+   * (실제 값은 src/index.css 의 --h-choice / --h-choice-compact)
+   * - default: 180px — 선택지가 둘일 때. 글씨를 키우고도 자리가 남아 낮추지 않았다.
+   * - compact: 138px — 선택지가 셋일 때. 세 장이 스크롤 없이 한 화면에 들어가게 한다.
    *
-   * compact 는 질문이 46px 로 커지면서 160px -> 148px 로 줄였다. 질문과 카드 사이
-   * 여백을 먼저 내주고도 390x844 에서 12px 이 모자랐다. 라벨(44px)은 그대로 두고
-   * 카드만 낮춘다 — 글씨를 줄이는 것보다 카드가 낮아지는 편이 낫다.
-   * 낮춰도 라벨 위아래로 46px 씩 남는다.
+   * 질문이 56px, 라벨이 52px 로 커지면서 선택지가 셋인 질문만 148 -> 138px 로 낮췄다.
+   * 여백을 먼저 내주고도 자리가 모자라면 카드 높이로 메운다. 글씨는 건드리지 않는다.
+   * 낮춘 쪽도 라벨(64px) 위아래로 37px 씩 남아 최소 터치 높이 88px 을 넉넉히 넘어선다.
    */
   size?: 'default' | 'compact'
 }
@@ -55,8 +55,8 @@ export default function ChoiceCard({
       aria-pressed={selected}
       className={[
         // justify-center + text-center: 아이콘이 빠진 자리를 왼쪽에 남기지 않고 라벨을 한가운데 둔다.
-        'relative flex w-full items-center justify-center rounded-card border-[3px] px-5 text-center',
-        size === 'compact' ? 'h-[148px]' : 'h-[180px]',
+        'relative flex w-full items-center justify-center rounded-card border-[3px] px-4 text-center',
+        size === 'compact' ? 'h-[var(--h-choice-compact)]' : 'h-[var(--h-choice)]',
         'transition-[background-color,border-color,transform] duration-150 active:scale-[0.99]',
         selected
           ? 'border-brand bg-brand-tint shadow-card-selected'
@@ -64,7 +64,9 @@ export default function ChoiceCard({
       ].join(' ')}
     >
       {/* break-keep: 만에 하나 줄이 바뀌더라도 '매장에서 / 마시기' 처럼 낱말 단위로만 나뉘게 한다.
-          (지금 쓰는 라벨은 375px 화면에서도 전부 한 줄에 들어간다) */}
+          카드 좌우 여백이 20px 이던 시절에는 360px 화면에서 '매장에서 마시기' 가 두 줄로 접혔다.
+          글씨를 줄이는 대신 여백을 16px 로 좁혀(안쪽 폭 266 -> 274px) 한 줄을 지켰다.
+          (지금 쓰는 라벨은 360px 화면에서도 전부 한 줄에 들어간다) */}
       <span className={['break-keep font-semibold text-ink', TITLE_CLASS[emphasis]].join(' ')}>
         {title}
       </span>

@@ -5,6 +5,7 @@ import InstallGuide from '../components/InstallGuide'
 import { MicIcon } from '../components/Icons'
 import Logo from '../components/Logo'
 import MenuImage from '../components/MenuImage'
+import ScreenFrame from '../components/ScreenFrame'
 import { useOrder } from '../context/OrderContext'
 import { MENUS } from '../data/menus'
 import { primeSpeech } from '../hooks/useSpeech'
@@ -82,8 +83,8 @@ export default function Welcome() {
   }
 
   return (
-    <div className="mx-auto flex h-[100dvh] w-full max-w-[430px] animate-enter flex-col bg-bg px-6">
-      <div className="flex flex-1 flex-col items-center justify-center">
+    <ScreenFrame className="animate-enter px-6">
+      <div className="flex min-h-0 flex-1 flex-col items-center justify-center">
         {/* 지난 주문 카드가 붙으면 로고를 줄여 한 화면에 들어가게 한다. */}
         <Logo className={lastMenu ? 'h-auto w-[63%]' : 'h-auto w-[80%]'} />
         {/*
@@ -94,7 +95,7 @@ export default function Welcome() {
         <div aria-hidden className="h-[58px]" />
       </div>
 
-      <div className="pb-[calc(env(safe-area-inset-bottom)+32px)]">
+      <div className="shrink-0 pb-[calc(env(safe-area-inset-bottom)+var(--stack-lg))]">
         {/* 홈 화면에 두는 방법. 이미 홈 화면 앱이거나 한 번 닫았으면 아무것도 그리지 않는다. */}
         <InstallGuide />
 
@@ -132,13 +133,14 @@ export default function Welcome() {
             onClick={handleVoice}
             className="mb-4 flex h-touch w-full items-center justify-center gap-3 rounded-cta border-2 border-line bg-surface text-ink transition-transform duration-150 active:scale-[0.99]"
           >
-            <MicIcon size={44} />
-            <span className="text-[24px] font-semibold leading-none">말로 주문하기</span>
+            <MicIcon size={40} />
+            {/* 24px -> 버튼 라벨과 같은 34px. 대신 마이크 그림이 44 -> 40px 로 자리를 내준다. */}
+            <span className="text-btn font-semibold leading-none">말로 주문하기</span>
           </button>
         )}
 
         <Button onClick={handleStart}>시작하기</Button>
       </div>
-    </div>
+    </ScreenFrame>
   )
 }

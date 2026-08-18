@@ -9,8 +9,16 @@ import { cartCups, cartTotal, cupsLabel, itemTotal, won } from '../logic/cart'
 
 const TITLE = '담은 음료예요'
 
-/** 장바구니 카드의 사진 크기 */
-const IMAGE_SIZE = 120
+/**
+ * 장바구니 카드의 사진 크기.
+ *
+ * 120px 이던 것을 80px 로 줄였다. 사진이 아니라 오른쪽 글자 폭을 넓히기 위해서다.
+ * 이름이 쓸 수 있는 폭이 91px 밖에 안 남아 '따뜻한 / 바닐라 / 라떼' 로 세 줄이 되고,
+ * 그만큼 카드가 높아져 담은 것 두 개가 한 화면에 들어가지 못했다.
+ *   글자 폭 = 312 - 카드 여백 16 - 사진 80 - 사이 16 - [빼기] 64 = 136px  (360px 화면 기준)
+ * 글씨를 줄이는 대신 사진을 줄이고 [빼기] 의 좌우 여백도 한 단계 좁혔다.
+ */
+const IMAGE_SIZE = 80
 
 /**
  * 6-3. 장바구니
@@ -46,7 +54,7 @@ export default function Cart() {
     return (
       <ScreenLayout
         onBack={() => navigate('/result')}
-        subtitle="더 담으시거나 주문하실 수 있어요"
+        subtitle="더 담으시거나 주문하세요"
         footer={<Button onClick={goPickMore}>음료 고르러 가기</Button>}
       >
         <h1 className="text-screen-title font-bold text-ink">{TITLE}</h1>
@@ -58,7 +66,7 @@ export default function Cart() {
   return (
     <ScreenLayout
       onBack={() => navigate('/result')}
-      subtitle="더 담으시거나 주문하실 수 있어요"
+      subtitle="더 담으시거나 주문하세요"
       footer={
         <div className="flex flex-col gap-3">
           {/* 총액은 목록이 길어져도 항상 눈에 보이도록 버튼과 함께 아래에 고정한다. */}
@@ -74,11 +82,11 @@ export default function Cart() {
       <h1 className="text-screen-title font-bold text-ink">{TITLE}</h1>
 
       {/* 390x844 에서 두 줄까지는 스크롤 없이 들어가야 해서 간격을 넉넉함의 하한으로 잡았다. */}
-      <ul className="mt-4 flex flex-col gap-3">
+      <ul className="mt-[var(--gap-card-sm)] flex flex-col gap-2">
         {cart.map((item) => (
           <li
             key={item.menu.id}
-            className="flex items-center gap-4 rounded-card bg-surface p-[10px] shadow-card"
+            className="flex items-center gap-4 rounded-card bg-surface p-2 shadow-card"
           >
             <MenuImage menu={item.menu} size={IMAGE_SIZE} radius={20} eager />
 
@@ -86,10 +94,10 @@ export default function Cart() {
               <span className="break-keep text-card-title font-bold leading-[32px] text-ink">
                 {item.menu.name}
               </span>
-              <span className="mt-1 text-price font-medium text-ink-sub">
+              <span className="mt-0.5 text-price font-medium text-ink-sub">
                 {cupsLabel(item.quantity)}
               </span>
-              <span className="mt-1 text-price font-bold text-brand">
+              <span className="mt-0.5 text-price font-bold text-brand">
                 {won(itemTotal(item))}
               </span>
             </div>
@@ -99,7 +107,7 @@ export default function Cart() {
               type="button"
               onClick={() => removeFromCart(item.menu.id)}
               aria-label={`${item.menu.name} 빼기`}
-              className="mr-1 shrink-0 self-stretch rounded-2xl px-4 text-body font-semibold text-ink-sub active:scale-[0.98]"
+              className="mr-1 shrink-0 self-stretch rounded-2xl px-3 text-body font-semibold text-ink-sub active:scale-[0.98]"
             >
               빼기
             </button>

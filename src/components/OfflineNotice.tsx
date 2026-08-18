@@ -1,4 +1,5 @@
 import Button from './Button'
+import ScreenFrame from './ScreenFrame'
 
 interface OfflineNoticeProps {
   /** 다시 시도 */
@@ -15,34 +16,40 @@ interface OfflineNoticeProps {
  */
 export default function OfflineNotice({ onRetry, onBack }: OfflineNoticeProps) {
   return (
-    <div className="mx-auto flex h-[100dvh] w-full max-w-[430px] animate-enter flex-col bg-bg px-6">
-      <div className="flex flex-1 flex-col items-center justify-center text-center">
+    <ScreenFrame className="animate-enter px-6">
+      <div className="flex min-h-0 flex-1 flex-col items-center justify-center text-center">
         <NoSignalIcon />
 
-        <h1 className="mt-8 break-keep text-screen-title font-bold text-ink">
+        <h1 className="mt-[var(--stack-lg)] break-keep text-screen-title font-bold text-ink">
           인터넷 연결을 확인해 주세요
         </h1>
-        <p className="mt-4 break-keep text-body font-medium text-ink-sub">
+        <p className="mt-[var(--gap-card-sm)] break-keep text-body font-medium text-ink-sub">
           연결이 끊겨 있어 주문을 넣지 못했어요.
           <br />
           담아 두신 음료는 그대로 있습니다.
         </p>
       </div>
 
-      <div className="flex flex-col gap-3 pb-[calc(env(safe-area-inset-bottom)+32px)]">
+      <div className="flex shrink-0 flex-col gap-3 pb-[calc(env(safe-area-inset-bottom)+var(--stack-lg))]">
         <Button variant="outline" onClick={onBack}>
           담은 음료 보기
         </Button>
         <Button onClick={onRetry}>다시 해볼게요</Button>
       </div>
-    </div>
+    </ScreenFrame>
   )
 }
 
 /** 끊긴 연결 표시 — 안테나에 사선을 그은 모양 */
 function NoSignalIcon() {
   return (
-    <svg width="96" height="96" viewBox="0 0 96 96" role="img" aria-label="연결 끊김">
+    // 창이 짧으면 그림부터 줄인다. 글씨는 마지막까지 그대로 둔다.
+    <svg
+      viewBox="0 0 96 96"
+      role="img"
+      aria-label="연결 끊김"
+      className="h-[clamp(56px,10vh,96px)] w-[clamp(56px,10vh,96px)]"
+    >
       <g
         fill="none"
         stroke="#5B6B84"

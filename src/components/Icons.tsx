@@ -12,16 +12,28 @@
  * (지운 SVG 가 다시 필요하면 이 파일의 지난 커밋에서 그대로 꺼내 쓸 수 있다)
  */
 interface IconProps {
-  /** 아이콘 한 변의 크기(px) */
-  size?: number
+  /**
+   * 아이콘 한 변의 크기.
+   * 숫자면 그 px 로 고정되고, CSS 길이 문자열('var(--icon-done)' 등)이면 창 높이에 따라 줄어든다.
+   */
+  size?: number | string
   className?: string
+}
+
+/**
+ * 크기를 svg 에 붙이는 방법을 고른다.
+ * width/height 속성은 var(...) 같은 CSS 길이를 알아듣지 못하므로 그때는 style 로 넘긴다.
+ */
+function sizeProps(size: number | string) {
+  return typeof size === 'number'
+    ? { width: size, height: size }
+    : { style: { width: size, height: size } }
 }
 
 function Svg({ size = 64, className, children }: IconProps & { children: React.ReactNode }) {
   return (
     <svg
-      width={size}
-      height={size}
+      {...sizeProps(size)}
       viewBox="0 0 48 48"
       fill="none"
       aria-hidden="true"
@@ -37,8 +49,7 @@ function Svg({ size = 64, className, children }: IconProps & { children: React.R
 export function CheckCircleIcon({ size = 32, className }: IconProps) {
   return (
     <svg
-      width={size}
-      height={size}
+      {...sizeProps(size)}
       viewBox="0 0 32 32"
       fill="none"
       aria-hidden="true"
@@ -59,7 +70,7 @@ export function CheckCircleIcon({ size = 32, className }: IconProps) {
 /** 뒤로가기 화살표 */
 export function BackIcon({ size = 26, className }: IconProps) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true" className={className}>
+    <svg {...sizeProps(size)} viewBox="0 0 24 24" fill="none" aria-hidden="true" className={className}>
       <path
         d="M15 4 7 12l8 8"
         stroke="currentColor"

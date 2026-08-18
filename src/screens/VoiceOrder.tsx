@@ -206,9 +206,9 @@ export default function VoiceOrder() {
 
   const subtitle =
     phase === 'choosing'
-      ? '드시고 싶은 것을 하나 눌러 주세요'
+      ? '드시고 싶은 것을 눌러 주세요'
       : phase === 'notFound'
-        ? '다시 말씀하시거나 질문으로 고르실 수 있어요'
+        ? '다시 말씀하시거나 골라 주세요'
         : phase === 'denied'
           ? '질문으로 고르실 수 있어요'
           : '천천히 말씀하셔도 괜찮아요'
@@ -221,7 +221,7 @@ export default function VoiceOrder() {
       footer={footerFor(phase, { handleQuit, handleRetry, goQuestions, handleUseButtons })}
     >
       {(phase === 'preparing' || phase === 'listening') && (
-        <div className="flex flex-1 flex-col items-center justify-center">
+        <div className="flex min-h-0 flex-1 flex-col items-center justify-center">
           {/* 화면이 짧으면 마이크만 줄어든다. 글씨 크기는 노안 대응 기준이라 건드리지 않는다. */}
           <div className="relative flex h-[clamp(92px,15vh,132px)] w-[clamp(92px,15vh,132px)] items-center justify-center">
             {/* 듣는 중일 때만 물결이 퍼진다 */}
@@ -241,17 +241,22 @@ export default function VoiceOrder() {
             </span>
           </div>
 
+          {/* 56px 에서는 '드시고 싶은 것을'(352px) 한 덩어리가 375px 화면 폭(327px)을 넘는다.
+              세 줄로 흘리는 대신 화면 글씨를 짧게 줄였다.
+              읽어 드리는 말(PROMPT)은 '드시고 싶은 것을 말씀해 주세요.' 그대로다. */}
           <QuestionTitle
-            lines={['드시고 싶은 것을', '말씀해 주세요']}
-            className="mt-6 text-center"
+            lines={['무엇을', '드시겠어요?']}
+            className="mt-[var(--stack-md)] text-center"
           />
 
-          <p className="mt-3 break-keep text-center text-card-title font-semibold text-ink-sub">
+          <p className="mt-[var(--gap-in-card)] break-keep text-center text-card-title font-semibold text-ink-sub">
             예) 따뜻한 아메리카노
           </p>
 
           {/* 알아듣는 중인 말. 자리를 미리 잡아 두어 글씨가 나타나도 화면이 밀리지 않는다. */}
-          <p className="mt-4 min-h-[36px] break-keep text-center text-btn font-bold text-ink">
+          {/* min-h 는 text-btn 한 줄 높이(34px 글씨 · 44px 줄간격)와 같다.
+              알아들은 말이 나타날 때 화면이 밀리지 않도록 자리를 미리 잡아 둔다. */}
+          <p className="mt-4 min-h-[44px] break-keep text-center text-btn font-bold text-ink">
             {interim}
           </p>
 
@@ -268,7 +273,7 @@ export default function VoiceOrder() {
         <>
           <QuestionTitle lines={['어떤 걸로', '드릴까요?']} />
 
-          <div className="mt-4 flex flex-col gap-3">
+          <div className="mt-[var(--gap-card-sm)] flex flex-col gap-3">
             {choices.map((menu) => (
               <button
                 key={menu.id}
@@ -290,12 +295,12 @@ export default function VoiceOrder() {
       )}
 
       {phase === 'notFound' && (
-        <div className="flex flex-1 flex-col items-center justify-center">
-          <span className="flex h-[132px] w-[132px] items-center justify-center rounded-full bg-line text-ink-sub">
+        <div className="flex min-h-0 flex-1 flex-col items-center justify-center">
+          <span className="flex h-[clamp(92px,15vh,132px)] w-[clamp(92px,15vh,132px)] items-center justify-center rounded-full bg-line text-ink-sub">
             <MicIcon size={72} />
           </span>
           {/* 어르신 탓처럼 들리지 않게 '못 알아들었다' 고 말한다. */}
-          <QuestionTitle lines={['잘 못', '알아들었어요']} className="mt-8 text-center" />
+          <QuestionTitle lines={['잘 못', '알아들었어요']} className="mt-[var(--stack-lg)] text-center" />
           <p className="mt-4 break-keep text-center text-body font-medium text-ink-sub">
             다시 한 번 말씀해 주시겠어요?
           </p>
@@ -303,11 +308,11 @@ export default function VoiceOrder() {
       )}
 
       {phase === 'denied' && (
-        <div className="flex flex-1 flex-col items-center justify-center">
-          <span className="flex h-[132px] w-[132px] items-center justify-center rounded-full bg-line text-ink-sub">
+        <div className="flex min-h-0 flex-1 flex-col items-center justify-center">
+          <span className="flex h-[clamp(92px,15vh,132px)] w-[clamp(92px,15vh,132px)] items-center justify-center rounded-full bg-line text-ink-sub">
             <MicIcon size={72} />
           </span>
-          <QuestionTitle lines={['소리를 들을 수', '없어요']} className="mt-8 text-center" />
+          <QuestionTitle lines={['소리를 들을 수', '없어요']} className="mt-[var(--stack-lg)] text-center" />
           <p className="mt-4 break-keep text-center text-body font-medium text-ink-sub">
             질문으로 골라 주세요
           </p>

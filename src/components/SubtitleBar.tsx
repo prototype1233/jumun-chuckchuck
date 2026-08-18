@@ -8,9 +8,11 @@ interface SubtitleBarProps {
  * 음성 안내를 듣지 못하는 상황에서도 같은 내용을 글로 읽을 수 있게 한다.
  */
 export default function SubtitleBar({ text }: SubtitleBarProps) {
+  // 20px 로는 자막이 눈에 들어오지 않는다고 하셔서 26px 로 올렸다.
+  // 위아래 여백은 창 높이에 따라 줄어들지만 글씨는 20px 아래로 내려가지 않는다.
   return (
-    <div className="shrink-0 border-t border-line bg-surface px-6 pb-[calc(env(safe-area-inset-bottom)+18px)] pt-[18px]">
-      <p className="text-center text-body font-medium text-ink">{text}</p>
+    <div className="shrink-0 border-t border-line bg-surface px-6 pb-[calc(env(safe-area-inset-bottom)+var(--pad-bar-y))] pt-[var(--pad-bar-y)]">
+      <p className="text-center text-subtitle font-medium text-ink">{text}</p>
     </div>
   )
 }

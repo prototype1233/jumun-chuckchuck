@@ -24,12 +24,12 @@ interface QuestionTitleProps {
  *  1) word-break: keep-all  — 낱말 가운데에서 자르지 않는다. (긴 영문·숫자는 overflow-wrap 으로 흘려보낸다)
  *  2) lines 로 넘겨받은 덩어리 — 낱말 단위로 잘라도 어색한 자리는 아예 못 자르게 묶어 둔다.
  *
- * 글자 크기(46px)와 줄 간격(60px, 1.3배)은 노안 대응 기준이라 여기서 줄이지 않는다.
+ * 글자 크기(56px)와 줄 간격(70px, 1.25배)은 노안 대응 기준이라 여기서 줄이지 않는다.
  *
- * 46px 이 되면서 덩어리 하나가 화면 폭(390 기준 342px)을 넘을 수 있게 됐다.
+ * 56px 이 되면서 덩어리 하나가 화면 폭(375 기준 327px)을 넘기가 훨씬 쉬워졌다.
  * 덩어리는 whitespace-nowrap 이라 넘치면 줄이 바뀌는 대신 옆으로 삐져나간다.
- * 그래서 lines 를 적을 때는 덩어리 하나가 한글 일곱 자를 넘지 않게 끊는다.
- *   '준비해 드릴까요?'(351px) -> '준비해' + '드릴까요?'
+ * 그래서 lines 를 적을 때는 덩어리 하나가 한글 다섯 자를 넘지 않게 끊는다.
+ *   '준비해 드릴까요?' -> '어떤 메뉴를' + '드릴까요?' (Question.tsx 의 1번 질문 참고)
  */
 export default function QuestionTitle({ lines, className = '' }: QuestionTitleProps) {
   return (

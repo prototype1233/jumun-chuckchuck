@@ -30,10 +30,10 @@ interface StepConfig {
    * 선택지는 라벨 한 줄뿐이다.
    *
    * 예전에는 64px 아이콘과 '부드럽고 순한 맛' 같은 22px 한 줄 설명이 함께 있었다.
-   * 둘 다 걷어내고 그 자리를 라벨 크기(44px)에 줬다.
+   * 둘 다 걷어내고 그 자리를 라벨 크기(52px)에 줬다.
    * 무엇이 다른지는 speechText 의 음성 안내와 자막 바가 알려 드린다.
    *
-   * 라벨은 네 글자를 넘기지 않는다. 44px 에서 다섯 글자가 되면 375px 화면에서 줄이 바뀐다.
+   * 라벨은 네 글자를 넘기지 않는다. 52px 에서 '달콤하게'(176px)까지가 375px 화면에 들어간다.
    */
   options: {
     value: StepValue
@@ -44,11 +44,13 @@ interface StepConfig {
 /** 종류·온도 — 커피든 음료든 똑같이 여쭙는다. */
 const STEPS: Record<number, StepConfig> = {
   1: {
-    // 화면 글씨만으로 충분한 질문이라 speechText 를 두지 않는다. (화면 글씨를 그대로 읽는다)
-    // 46px 에서 '준비해 드릴까요?'(351px) 는 화면 폭(342px)을 넘는다.
-    // 덩어리를 셋으로 끊어 '어떤 메뉴를 / 준비해 / 드릴까요?' 세 줄로 흐르게 한다.
-    question: ['어떤 메뉴를', '준비해', '드릴까요?'],
-    subtitle: '고르시면 다음 질문으로 넘어가요',
+    // 56px 에서는 '어떤 메뉴를 준비해 드릴까요?' 가 세 줄이 된다.
+    // (375px 화면에서 한 줄에 쓸 수 있는 폭이 327px 인데, '준비해 드릴까요?' 만으로 371px 이다)
+    // 세 줄이 되면 눈이 글을 따라가다 놓치므로 화면 글씨에서 '준비해' 를 덜어 두 줄로 맞췄다.
+    // 덜어낸 말은 아래 speechText 가 그대로 담고 있어 귀로 듣는 문장은 예전과 같다.
+    question: ['어떤 메뉴를', '드릴까요?'],
+    speechText: '어떤 메뉴를 준비해 드릴까요? 커피, 음료 중에 골라주세요.',
+    subtitle: '고르시면 다음으로 넘어가요',
     options: [
       { value: 'coffee', label: '커피' },
       { value: 'beverage', label: '음료' },
@@ -57,7 +59,7 @@ const STEPS: Record<number, StepConfig> = {
   2: {
     question: ['온도는 어떻게', '하시겠어요?'],
     speechText: '온도는 어떻게 하시겠어요? 차갑게, 따뜻하게 중에 골라주세요.',
-    subtitle: '고르시면 다음 질문으로 넘어가요',
+    subtitle: '고르시면 다음으로 넘어가요',
     options: [
       { value: 'ice', label: '시원함' },
       { value: 'hot', label: '따뜻함' },
@@ -156,12 +158,19 @@ export default function Question() {
       {/* 점만 있는 진행 표시. 높이(28px)는 예전 자리 그대로라 질문 위치는 변하지 않는다. */}
       <ProgressDots total={TOTAL} current={step} />
 
-      <QuestionTitle lines={config.question} className="mt-6" />
+      <QuestionTitle lines={config.question} className="mt-[var(--stack-md)]" />
 
-      {/* 질문과 카드 사이 여백 — 질문이 46px 로 커지며 두세 줄이 되어 좁혔다.
+      {/* 질문과 카드 사이 여백 — 질문이 56px 로 커지며 두 줄이 되어 좁혔다.
           선택지 둘: 32 -> 24px / 선택지 셋: 24 -> 16px.
-          글자 크기는 그대로 두고 여백부터 내주는 순서다. */}
-      <div className={compact ? 'mt-4 flex flex-col gap-4' : 'mt-6 flex flex-col gap-5'}>
+          글자 크기는 그대로 두고 여백부터 내주는 순서다.
+          창이 짧아질 때도 같은 순서다 — 여백이 먼저 줄고 글자는 마지막에 줄어든다. */}
+      <div
+        className={
+          compact
+            ? 'mt-[var(--gap-card-sm)] flex flex-col gap-[var(--gap-card-sm)]'
+            : 'mt-[var(--stack-md)] flex flex-col gap-[var(--gap-card)]'
+        }
+      >
         {config.options.map((option) => (
           <ChoiceCard
             key={option.value}

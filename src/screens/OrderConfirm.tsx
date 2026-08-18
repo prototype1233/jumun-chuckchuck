@@ -76,7 +76,7 @@ export default function OrderConfirm() {
     >
       <h1 className="text-screen-title font-bold text-ink">{TITLE}</h1>
 
-      <ul className="mt-6 flex flex-col gap-4">
+      <ul className="mt-[var(--stack-md)] flex flex-col gap-[var(--gap-card-sm)]">
         {cart.map((item) => (
           <li
             key={item.menu.id}

@@ -80,22 +80,23 @@ export default function OrderComplete() {
         {/* 대기번호와 바코드는 어떤 화면 크기에서도 스크롤 없이 보여야 한다.
             그래서 이 덩어리는 줄어들지도 스크롤되지도 않게 고정한다. */}
         <div className="flex shrink-0 flex-col items-center">
-          <CheckCircleIcon size={48} className="text-brand" />
+          {/* 그림·글씨·여백 모두 창 높이에 따라 함께 줄어든다. (src/index.css 토큰) */}
+          <CheckCircleIcon size="var(--icon-done)" className="text-brand" />
           <h1 className="mt-2 text-screen-title font-bold text-ink">주문이 준비됐어요</h1>
 
-          <p className="mt-3 text-sub font-semibold text-ink-sub">대기번호</p>
+          <p className="mt-[var(--gap-in-card)] text-sub font-semibold text-ink-sub">대기번호</p>
           <p className="text-waiting font-black text-ink">{waitingNumber}</p>
           <p className="text-body font-medium text-ink-sub">음료 {cups}잔을 준비할게요</p>
 
           {barcodeValue && (
             // 화면 폭의 85%. -mx-6 으로 본문 좌우 여백을 걷어내야 '화면 기준' 85% 가 된다.
-            <div className="-mx-6 mt-3 flex w-[calc(100%+48px)] justify-center">
+            <div className="-mx-6 mt-[var(--gap-in-card)] flex w-[calc(100%+48px)] justify-center">
               <button
                 type="button"
                 onClick={() => setZoomed(true)}
                 aria-label="바코드 크게 보기"
                 // 스캐너 인식률을 위해 배경은 반드시 흰색.
-                className="w-[85%] rounded-2xl bg-white px-3 py-3 shadow-card active:scale-[0.99]"
+                className="w-[85%] rounded-2xl bg-white px-3 py-[var(--gap-in-card)] shadow-card active:scale-[0.99]"
               >
                 {/* 규격상 최소 100px. 화면이 짧을 때만 110 → 100px 로 줄여 안내 자리를 조금 넘겨준다. */}
                 <Barcode value={barcodeValue} className="h-[clamp(100px,13vh,110px)] w-full" />
@@ -112,10 +113,10 @@ export default function OrderComplete() {
         {/* 자리가 모자라면 이 안내만 스크롤된다.
             아래쪽 여백(padding)을 두지 않는다. 여백은 줄어들지 않아서
             작은 화면에서는 그만큼 위 덩어리를 밀어내기 때문이다. */}
-        <ol className="mt-3 flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto">
+        <ol className="mt-[var(--gap-in-card)] flex min-h-0 flex-1 flex-col gap-[var(--gap-steps)] overflow-y-auto">
           {STEPS.map((text, index) => (
-            <li key={text} className="flex items-center gap-4">
-              <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-brand-tint text-price font-bold text-brand-deep">
+            <li key={text} className="flex shrink-0 items-center gap-4">
+              <span className="flex h-[var(--circle-step)] w-[var(--circle-step)] shrink-0 items-center justify-center rounded-full bg-brand-tint text-price font-bold text-brand-deep">
                 {index + 1}
               </span>
               <span className="break-keep text-body font-medium text-ink">{text}</span>

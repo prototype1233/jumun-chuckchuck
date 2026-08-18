@@ -44,16 +44,17 @@ export default function DineOption() {
   }
 
   return (
-    <ScreenLayout onBack={handleBack} subtitle="둘 중 하나를 손가락으로 눌러 주세요">
+    <ScreenLayout onBack={handleBack} subtitle="둘 중 하나를 눌러 주세요">
       <QuestionTitle lines={QUESTION_LINES} />
 
-      <div className="mt-8 flex flex-col gap-5">
-        {/* emphasis="dine": 카드 한가운데 라벨(36px) 하나뿐이다.
+      <div className="mt-[var(--stack-lg)] flex flex-col gap-[var(--gap-card)]">
+        {/* emphasis="dine": 카드 한가운데 라벨(44px) 하나뿐이다.
             64px 아이콘과 '가게 안에서 드세요' 같은 보조 설명을 모두 걷어냈다.
 
-            질문 화면 라벨은 44px 인데 여기만 36px 인 것은 '매장에서 마시기' 가 일곱 글자라서다.
-            아이콘이 빠지며 글자 자리가 216px -> 281px(375 화면)로 넓어져 36px 은 한 줄에 들어가지만,
-            44px 이면 313px 이 필요해 '매장에서 / 마시기' 로 접힌다. */}
+            질문 화면 라벨은 52px 인데 여기만 44px 인 것은 '매장에서 마시기' 가 일곱 글자라서다.
+            44px 일 때 이 라벨의 폭이 269px 인데, 카드 안쪽 폭은 375px 화면에서 289px,
+            가장 좁은 360px 화면에서 274px 다. 여기서 한 글자라도 더 키우면(46px = 284px)
+            360px 화면에서 '매장에서 / 마시기' 로 접힌다. */}
         <ChoiceCard
           title="매장에서 마시기"
           emphasis="dine"

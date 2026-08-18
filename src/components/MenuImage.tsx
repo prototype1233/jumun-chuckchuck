@@ -4,8 +4,12 @@ import type { Menu } from '../types'
 
 interface MenuImageProps {
   menu: Menu
-  /** 정사각 한 변의 크기(px) */
-  size: number
+  /**
+   * 정사각 한 변의 크기.
+   * 숫자를 넘기면 그 px 로 고정되고, CSS 길이 문자열('var(--img-menu-lg)' 같은)을 넘기면
+   * 창 높이에 따라 줄어드는 크기가 된다. (잔 수 화면의 큰 사진이 이렇게 쓴다)
+   */
+  size: number | string
   /** 모서리 둥글기(px) */
   radius: number
   /** 바로 불러올지 여부 — 추천 결과 3장은 true */
@@ -32,6 +36,11 @@ export default function MenuImage({ menu, size, radius, eager = false }: MenuIma
 
   const box = { width: size, height: size, borderRadius: radius } as const
 
+  // 자리 잡기용 width/height 속성은 숫자일 때만 붙인다. (CSS 길이는 style 이 정한다)
+  const attrs = typeof size === 'number' ? { width: size, height: size } : {}
+  // 사진을 못 불러왔을 때 대신 보여 주는 글자 크기 — 한 변의 42%
+  const letterSize = typeof size === 'number' ? Math.round(size * 0.42) : `calc(${size} * 0.42)`
+
   if (failed) {
     return (
       <div
@@ -39,7 +48,7 @@ export default function MenuImage({ menu, size, radius, eager = false }: MenuIma
         className="flex shrink-0 items-center justify-center bg-gradient-to-br from-brand-deep to-brand-light"
         aria-hidden="true"
       >
-        <span className="font-black text-white" style={{ fontSize: Math.round(size * 0.42) }}>
+        <span className="font-black text-white" style={{ fontSize: letterSize }}>
           {placeholderLetter(menu.name)}
         </span>
       </div>
@@ -50,8 +59,7 @@ export default function MenuImage({ menu, size, radius, eager = false }: MenuIma
     <img
       src={src}
       alt={menu.name}
-      width={size}
-      height={size}
+      {...attrs}
       style={box}
       className="shrink-0 bg-brand-tint object-cover"
       loading={eager ? 'eager' : 'lazy'}
