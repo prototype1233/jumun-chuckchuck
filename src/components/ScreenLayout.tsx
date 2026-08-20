@@ -10,6 +10,17 @@ interface ScreenLayoutProps {
   backLabel?: string
   /** 하단 자막 바 문구 */
   subtitle: string
+  /**
+   * 자막 바를 한 단계 작게 (22px + 낮은 바 높이).
+   * 선택지가 셋인 질문 화면에서만 켠다. (SubtitleBar 참고)
+   */
+  compactSubtitle?: boolean
+  /**
+   * 본문·버튼의 좌우 여백을 24px 에서 12px 로 좁힌다.
+   * 추천 결과 화면에서만 켠다 — 카드가 화면 폭을 최대한 쓰게 하려는 것이다.
+   * 12px 이 있어야 카드 그림자가 잘리지 않는다. (그림자가 좌우로 16px 번진다)
+   */
+  tightPadX?: boolean
   /** 화면 본문 */
   children: ReactNode
   /** 자막 바 위에 놓이는 버튼 영역 (없으면 자리 차지도 하지 않는다) */
@@ -33,7 +44,10 @@ export default function ScreenLayout({
   subtitle,
   children,
   footer,
+  compactSubtitle = false,
+  tightPadX = false,
 }: ScreenLayoutProps) {
+  const padX = tightPadX ? 'px-3' : 'px-6'
   return (
     <ScreenFrame>
       <header className="flex shrink-0 items-center justify-between px-3 pt-[env(safe-area-inset-top)]">
@@ -50,17 +64,19 @@ export default function ScreenLayout({
 
       {/* 390x844(휴대폰) 기준으로도, 세로가 짧은 데스크톱 창에서도 스크롤이 생기지 않게
           여백과 글자가 함께 줄어든다. 그래도 모자랄 만큼 창이 짧을 때만 여기가 스크롤된다. */}
-      <main className="flex min-h-0 flex-1 animate-enter flex-col overflow-y-auto px-6 pt-[var(--pad-screen-y)]">
+      <main
+        className={`flex min-h-0 flex-1 animate-enter flex-col overflow-y-auto ${padX} pt-[var(--pad-screen-y)]`}
+      >
         {children}
       </main>
 
       {footer && (
-        <div className="shrink-0 px-6 pb-[var(--pad-footer-b)] pt-[var(--pad-screen-y)]">
+        <div className={`shrink-0 ${padX} pb-[var(--pad-footer-b)] pt-[var(--pad-screen-y)]`}>
           {footer}
         </div>
       )}
 
-      <SubtitleBar text={subtitle} />
+      <SubtitleBar text={subtitle} compact={compactSubtitle} />
     </ScreenFrame>
   )
 }

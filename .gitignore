@@ -6,3 +6,6 @@ dist-ssr
 *.tsbuildinfo
 .DS_Store
 .vite
+
+# 화면 스크린샷 — 손으로 찍어 두는 것이라 저장소에 넣지 않는다
+shots/

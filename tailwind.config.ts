@@ -38,20 +38,25 @@ export default {
         // 실제 숫자는 src/index.css 의 토큰에 적혀 있다.
         // 휴대폰 세로 화면에서는 아래 주석에 적힌 px 값 그대로 나온다. (줄어드는 것은 데스크톱뿐)
         //
-        // question — 여쭙는 글. 질문 3개 · 드실 곳 · 추천 결과 제목이 쓴다.
-        // 46px 로도 아직 작다고 하셔서 56px 로 올렸다. 줄간격은 1.25배(70px).
-        // 56px 에서 한 줄에 들어가는 한글은 375px 화면 기준 다섯 자다.
+        // question — 여쭙는 글. 질문 3개 · 드실 곳이 쓴다.
+        // (추천 결과 제목은 크기가 갈라져 아래 result-title 로 나갔다)
+        // 56px 로도 아직 작다고 하셔서 64px 로 올렸다. 줄간격은 1.25배(80px).
+        // 64px 에서 한 줄에 들어가는 한글은 390px 화면 기준 다섯 자다.
         // 질문을 끊는 자리(QuestionTitle 의 lines)도 그 폭에 맞춰 다시 나눴다.
         question: ['var(--fs-question)', { lineHeight: 'var(--lh-question)', letterSpacing: '-0.02em' }],
         // screen-title — 여쭙는 글이 아닌 화면 제목 (장바구니 · 주문 확인 · 주문 완료 · 잔 수).
         // question 이 46px 로 올라가면서 갈라져 나온 예전 크기 그대로다. (34px)
         'screen-title': ['var(--fs-screen-title)', { lineHeight: 'var(--lh-screen-title)', letterSpacing: '-0.02em' }],
-        // 버튼 라벨 (시작하기 · 다음 · 다시 고를래요 …) — 28px -> 34px
+        // 버튼 라벨 (시작하기 · 다음 · 다시 고를래요 …) — 34px -> 40px
         btn: ['var(--fs-btn)', { lineHeight: 'var(--lh-btn)', letterSpacing: '-0.02em' }],
         // 하단 자막 바 — body(20px) 와 함께 쓰다가 26px 로 갈라져 나왔다.
         // 자막은 화면마다 반드시 읽히는 한 문장이라 본문보다 크게 둔다.
         subtitle: ['var(--fs-subtitle)', { lineHeight: 'var(--lh-subtitle)', letterSpacing: '-0.01em' }],
-        // 좌측 상단 뒤로가기 — 24px 를 박아 쓰던 것을 30px 토큰으로 옮겼다.
+        // 선택지가 셋인 질문(커피 맛) 화면에서만 쓰는 작은 자막 — 26px 대신 22px.
+        // 그 화면은 카드가 한 장 더 들어가야 해서 자막 바가 자리를 조금 내준다.
+        // 다른 화면의 자막은 subtitle(26px) 그대로다.
+        'subtitle-sm': ['var(--fs-subtitle-sm)', { lineHeight: 'var(--lh-subtitle-sm)', letterSpacing: '-0.01em' }],
+        // 좌측 상단 뒤로가기 — 30px -> 34px
         back: ['var(--fs-back)', { lineHeight: 'var(--lh-back)', letterSpacing: '-0.02em' }],
         // 26px
         'card-title': ['var(--fs-card-title)', { lineHeight: 'var(--lh-card-title)', letterSpacing: '-0.02em' }],
@@ -60,8 +65,8 @@ export default {
         // 44px 이 375px 화면에서 한 줄에 들어가는 상한이다. (269px / 카드 안쪽 폭 281px)
         // 46px 이면 284px 라 '매장에서 / 마시기' 로 접힌다.
         'choice-title': ['var(--fs-choice-title)', { lineHeight: 'var(--lh-choice-title)', letterSpacing: '-0.02em' }],
-        // 질문 화면 선택 카드 라벨 — 44px 도 작다고 하셔서 52px 로 올렸다.
-        // 가장 긴 라벨이 '달콤하게'(네 글자)라 375px 화면에서도 한 줄에 들어간다.
+        // 질문 화면 선택 카드 라벨 — 52px 도 작다고 하셔서 60px 로 올렸다.
+        // 가장 긴 라벨이 '달콤하게'(네 글자)라 360px 화면에서도 한 줄에 들어간다.
         'choice-label': ['var(--fs-choice-label)', { lineHeight: 'var(--lh-choice-label)', letterSpacing: '-0.02em' }],
         // 아래 넷은 접근성 최소 크기(본문 20px)에 걸려 있어 어떤 화면에서도 줄이지 않는다.
         //
@@ -71,10 +76,18 @@ export default {
         body: ['20px', { lineHeight: '30px', letterSpacing: '-0.01em' }],
         sub: ['18px', { lineHeight: '28px', letterSpacing: '-0.01em' }],
         price: ['22px', { lineHeight: '30px', letterSpacing: '-0.01em' }],
-        // 추천 카드의 값 — 26px 도 작다고 하셔서 32px 로 올렸다.
+        // 추천 카드의 값 — 32px 도 작다고 하셔서 38px 로 올렸다.
         // 다른 화면(장바구니·주문 확인 등)의 값은 price 그대로 두고 여기만 키운다.
         'card-price': ['var(--fs-card-price)', { lineHeight: 'var(--lh-card-price)', letterSpacing: '-0.01em' }],
-        // 추천 결과의 메뉴 이름 · 잔 수 화면에서 고른 메뉴 (30px -> 36px)
+        // 추천 카드의 메뉴 이름 — menu(잔 수 화면과 함께 쓰던 것)에서 갈라져 나왔다.
+        // 이 이름만 사진 옆 좁은 폭에서 두 줄에 들어가야 해서 기기마다 크기가 다르다.
+        // 시연 기기(390x844)에서 42px, 아이폰 SE(375x667)에서만 30px 이다.
+        'recommend-name': ['var(--fs-recommend-name)', { lineHeight: 'var(--lh-recommend-name)', letterSpacing: '-0.02em' }],
+        // 추천 결과 화면의 제목 — question(64px) 에서 갈라져 나왔다.
+        // 한 줄에 들어가야 카드 셋이 자리를 얻는다. 폭이 385px 이 안 되면 56px 로 내려간다.
+        'result-title': ['var(--fs-result-title)', { lineHeight: 'var(--lh-result-title)', letterSpacing: '-0.02em' }],
+        // 잔 수 화면에서 고른 메뉴 이름 (36px -> 42px)
+        // (추천 결과의 이름은 위 recommend-name 으로 갈라져 나갔다)
         menu: ['var(--fs-menu)', { lineHeight: 'var(--lh-menu)', letterSpacing: '-0.02em' }],
         // 24px
         amount: ['var(--fs-amount)', { lineHeight: 'var(--lh-amount)', letterSpacing: '-0.01em' }],

@@ -10,6 +10,12 @@ interface MenuImageProps {
    * 창 높이에 따라 줄어드는 크기가 된다. (잔 수 화면의 큰 사진이 이렇게 쓴다)
    */
   size: number | string
+  /**
+   * 높이만 따로 정하고 싶을 때. (기본값은 size — 정사각)
+   * 추천 결과의 배지가 붙은 카드만 카드가 사진보다 높아서, 그 한 장은
+   * 사진을 카드 높이만큼 늘려 세로 여백을 없앤다. object-cover 라 찌그러지지 않는다.
+   */
+  height?: number | string
   /** 모서리 둥글기(px) */
   radius: number
   /** 바로 불러올지 여부 — 추천 결과 3장은 true */
@@ -26,7 +32,13 @@ interface MenuImageProps {
  *
  * 사진 위에 글씨를 얹거나, 어둡게 덮거나, 필터를 씌우지 않는다.
  */
-export default function MenuImage({ menu, size, radius, eager = false }: MenuImageProps) {
+export default function MenuImage({
+  menu,
+  size,
+  height = size,
+  radius,
+  eager = false,
+}: MenuImageProps) {
   // assetUrl 을 거쳐야 GitHub Pages 처럼 하위 경로에 올렸을 때도 사진을 찾는다.
   const src = assetUrl(menu.image ?? `/menu/${menu.imageGroup}.jpg`)
   const [failed, setFailed] = useState(false)
@@ -34,10 +46,11 @@ export default function MenuImage({ menu, size, radius, eager = false }: MenuIma
   // 다른 메뉴로 바뀌면 실패 표시를 지운다.
   useEffect(() => setFailed(false), [src])
 
-  const box = { width: size, height: size, borderRadius: radius } as const
+  const box = { width: size, height, borderRadius: radius } as const
 
   // 자리 잡기용 width/height 속성은 숫자일 때만 붙인다. (CSS 길이는 style 이 정한다)
-  const attrs = typeof size === 'number' ? { width: size, height: size } : {}
+  const attrs =
+    typeof size === 'number' && typeof height === 'number' ? { width: size, height } : {}
   // 사진을 못 불러왔을 때 대신 보여 주는 글자 크기 — 한 변의 42%
   const letterSize = typeof size === 'number' ? Math.round(size * 0.42) : `calc(${size} * 0.42)`
 

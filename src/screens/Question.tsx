@@ -57,7 +57,11 @@ const STEPS: Record<number, StepConfig> = {
     ],
   },
   2: {
-    question: ['온도는 어떻게', '하시겠어요?'],
+    // 64px 에서는 '온도는 어떻게'(337px) 가 390px 화면의 가용 폭 342px 을 아슬아슬하게 쓰고
+    // 375·360px 화면에서는 삐져나간다. 덩어리는 nowrap 이라 넘치면 잘려 보인다.
+    // 그래서 화면 글씨를 '온도는 / 어떠세요?' 로 줄여 덩어리를 다섯 자 아래로 맞췄다.
+    // 귀로 듣는 문장은 speechText 가 예전 그대로 담고 있다.
+    question: ['온도는', '어떠세요?'],
     speechText: '온도는 어떻게 하시겠어요? 차갑게, 따뜻하게 중에 골라주세요.',
     subtitle: '고르시면 다음으로 넘어가요',
     options: [
@@ -71,7 +75,9 @@ const STEPS: Record<number, StepConfig> = {
  * 세 번째 질문 — 음료를 고르셨을 때. 예전 그대로 당도를 여쭙는다.
  */
 const STEP3_BEVERAGE: StepConfig = {
-  question: ['당도는 어떻게', '맞춰드릴까요?'],
+  // '맞춰드릴까요?' 는 64px 에서 365px 이라 어느 화면에서도 한 줄에 들어가지 않는다.
+  // (390px 화면의 가용 폭이 342px 이다) 화면 글씨만 '당도는 / 어떠세요?' 로 줄였다.
+  question: ['당도는', '어떠세요?'],
   speechText: '당도는 어떻게 맞춰드릴까요? 달콤한 맛과 담백한 맛 중에 골라주세요.',
   subtitle: '마지막 질문이에요',
   options: [
@@ -154,7 +160,9 @@ export default function Question() {
   const compact = config.options.length > 2
 
   return (
-    <ScreenLayout onBack={handleBack} subtitle={config.subtitle}>
+    // compactSubtitle: 선택지가 셋인 화면에서만 자막 바가 자리를 조금 내준다.
+    //                   카드 세 장이 스크롤 없이 들어가는 것이 자막 크기보다 앞선다.
+    <ScreenLayout onBack={handleBack} subtitle={config.subtitle} compactSubtitle={compact}>
       {/* 점만 있는 진행 표시. 높이(28px)는 예전 자리 그대로라 질문 위치는 변하지 않는다. */}
       <ProgressDots total={TOTAL} current={step} />
 

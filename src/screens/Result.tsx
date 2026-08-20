@@ -16,9 +16,9 @@ import type { Menu } from '../types'
  * 제목이 그대로면 눌렀는데 아무 일도 없었나 싶어진다.
  */
 /*
- * 56px 에서 한 줄에 들어가야 한다. 두 줄이 되면 70px 을 더 먹어
- * 카드 세 장과 아래 버튼 두 개가 한 화면에 들어가지 못한다.
- * ('이 세 가지를 추천드려요' 는 505px 라 375px 화면에서 두 줄이 된다)
+ * 반드시 한 줄에 들어가야 한다. 두 줄이 되면 71px 을 더 먹어
+ * 카드 세 장과 아래 버튼이 한 화면에 들어가지 못한다.
+ * ('이 세 가지를 추천드려요' 는 64px 에서 570px 이라 어느 휴대폰에서도 두 줄이 된다)
  * 화면에서 덜어낸 말은 아래 TITLE_*_SPEECH 가 그대로 읽어 드린다.
  */
 const TITLE_FIRST = '이 세 가지예요'
@@ -29,32 +29,48 @@ const TITLE_FIRST_SPEECH = '이 세 가지를 추천드려요. 마음에 드시�
 const TITLE_MORE_SPEECH = '다른 메뉴예요. 마음에 드시는 것을 눌러주세요.'
 
 /**
- * 추천 카드 사진 크기 — 화면 크기에 따라 달라진다. (실제 값은 src/index.css 의 --img-recommend)
+ * 추천 카드 사진 한 변 — 그대로 카드 높이가 된다. (실제 값은 src/index.css 의 --img-recommend)
  *
- * 사진을 크게 보여 달라는 요청과 '카드 3장이 스크롤 없이' 는 좁은 화면에서 함께 지킬 수 없다.
- * 그래서 화면이 허락하는 만큼만 키운다 — 390x844 는 120px, 375x667 은 44px.
+ * 카드 안쪽 여백을 0 으로 두어 사진이 카드 왼쪽을 위아래로 꽉 채운다.
+ * 시연 기기(390x844)에서 152px 이고, 좁은 기기에서는 한 단계씩 내려간다.
  *
- * 이 값은 카드 안에서 두 가지를 한꺼번에 정한다.
- *   1) 카드 높이 — 사진 + 카드 위아래 여백 12px (index.css 의 --h-recommend-* 가 calc 로 따라온다)
- *   2) 이름이 쓸 수 있는 폭 — 화면 폭 - 48 - 카드 여백 12 - 사진 - 사이 6
- * 사진이 커질수록 이름 폭이 좁아져 줄이 늘고, 그만큼 카드가 다시 높아진다.
+ * 사진을 더 키우지 못하는 까닭은 세로가 아니라 가로다.
+ *   이름이 쓸 폭 = 화면 폭 - 좌우 24 - 사진 - 사이 4 - 오른쪽 여백 6
+ * 390px 화면에서 사진이 152px 이면 204px 가 남는데, 가장 긴 덩어리가
+ * '카라멜 라떼'(197px) 라 여기서 조금만 더 좁아지면 이름이 세 줄로 접힌다.
+ * 세 줄이 되면 카드가 사진보다 높아져 사진 위아래에 빈 자리가 생긴다.
  * 그래서 사진을 키울 때는 반드시 이름이 몇 줄이 되는지까지 함께 봐야 한다.
  */
 const IMAGE_SIZE = 'var(--img-recommend)'
 
-/** 사진 모서리 둥글기 */
-const IMAGE_RADIUS = 20
+/**
+ * 사진 자체는 각지게 두고, 카드가 overflow-hidden 으로 왼쪽 두 모서리만 잘라 준다.
+ * 그래야 사진의 둥글기가 카드 모서리(28px)와 정확히 맞물린다.
+ */
+const IMAGE_RADIUS = 0
 
 /**
- * 카드 높이 — 사진을 따라간다. (사진 + 카드 위아래 여백 12px)
+ * 카드 높이 — 사진 크기 그대로다. (카드 안쪽 여백 0)
  *
  * min-h 로 두는 것은 이름이 여러 줄이 되면 카드가 알아서 늘어나야 하기 때문이다.
- * 배지가 있는 카드와 없는 카드의 토큰을 따로 두는 것은, 글이 사진보다 높아지는
- * 좁은 화면에서 둘의 높이가 갈리기 때문이다. (src/index.css 의 --h-recommend-*)
+ * 배지가 붙는 카드만 배지 한 줄(24px)과 이름과의 사이(2px)만큼 높다.
+ * (src/index.css 의 --h-recommend-*)
  */
 const CARD_HEIGHT = {
   withBadge: 'min-h-[var(--h-recommend-badge)]',
   plain: 'min-h-[var(--h-recommend-plain)]',
+} as const
+
+/**
+ * 사진 높이 — 카드 높이와 같은 값을 그대로 넣는다.
+ *
+ * 폭은 언제나 --img-recommend(정사각)이지만, 배지가 붙은 카드만 카드가 26px 더 높다.
+ * 그 한 장까지 정사각으로 두면 사진 위아래에 흰 띠가 생겨 혼자만 여백이 있는 카드로 보인다.
+ * 그래서 배지 카드의 사진만 세로로 조금 더 길게 잘라 카드 왼쪽을 끝까지 채운다.
+ */
+const IMAGE_HEIGHT = {
+  withBadge: 'var(--h-recommend-badge)',
+  plain: 'var(--h-recommend-plain)',
 } as const
 
 /**
@@ -145,6 +161,10 @@ export default function Result() {
     <ScreenLayout
       onBack={() => navigate('/q/3')}
       subtitle="드시고 싶은 것을 눌러 주세요"
+      // 카드가 화면 폭을 최대한 쓰도록 좌우 여백을 24 -> 12px 로 좁힌다.
+      tightPadX
+      // 자막을 22px 로 낮춰 바 높이 16px 을 카드에 넘겨준다.
+      compactSubtitle
       footer={
         // 버튼 사이는 8px. 두 개가 들어가도 390x844 에서 카드가 밀려나지 않는 간격이다.
         <div className="flex flex-col gap-1.5">
@@ -159,16 +179,20 @@ export default function Result() {
         </div>
       }
     >
-      <h1 className="break-keep text-question font-bold text-ink">
+      {/* 제목은 반드시 한 줄이어야 한다. 두 줄이 되면 그 한 번에 71px 을 잃어
+          카드 셋이 스크롤 없이 들어가지 못한다. 크기(64px)와 줄간격(71px)은
+          화면 폭에 따라 갈린다. (src/index.css 의 --fs-result-title)
+          줄간격을 80 -> 71px 로 좁힌 것이 곧 제목과 카드 사이를 좁힌 것이다. */}
+      <h1 className="break-keep text-result-title font-bold text-ink">
         {isFirstPage ? TITLE_FIRST : TITLE_MORE}
       </h1>
 
       {/* 세 장이 스크롤 없이 들어가야 하는 자리다.
-          글씨 크기는 노안 대응 기준이라 줄이지 않고, 사진 크기와 여백으로만 맞춘다.
+          390x844 에서 카드 178 + 8 + 152 + 8 + 152 = 498px 이 여기에 들어간다.
 
           key={offset}: 메뉴가 바뀔 때마다 이 자리를 새로 그려 200ms 페이드를 다시 재생한다.
           움직임 없이 색만 스며들게 한다 — 화면이 툭 바뀌면 잘못 눌렀나 싶어 놀라신다. */}
-      <div key={offset} className="mt-1 flex animate-fade flex-col gap-1.5">
+      <div key={offset} className="flex animate-fade flex-col gap-2">
         {menus.map((menu, index) => {
           // 배지는 카드당 하나만. 둘 다 해당하면 '자주 드시던 것' 을 먼저 보여 준다.
           //
@@ -185,25 +209,37 @@ export default function Result() {
               key={menu.id}
               type="button"
               onClick={() => handlePick(menu)}
-              className={`flex w-full items-center gap-1.5 rounded-card bg-surface p-1.5 text-left shadow-card transition-transform duration-150 active:scale-[0.99] ${
+              // p 없음 · overflow-hidden — 사진이 카드 왼쪽을 여백 없이 채우고,
+              // 사진의 왼쪽 두 모서리는 카드 모서리(28px)에 맞춰 잘린다.
+              className={`flex w-full items-center gap-1 overflow-hidden rounded-card bg-surface text-left shadow-card transition-transform duration-150 active:scale-[0.99] ${
                 badge ? CARD_HEIGHT.withBadge : CARD_HEIGHT.plain
               }`}
             >
               {/* 추천 3장은 바로 보여야 하므로 eager 로 불러온다 */}
-              <MenuImage menu={menu} size={IMAGE_SIZE} radius={IMAGE_RADIUS} eager />
+              <MenuImage
+                menu={menu}
+                size={IMAGE_SIZE}
+                height={badge ? IMAGE_HEIGHT.withBadge : IMAGE_HEIGHT.plain}
+                radius={IMAGE_RADIUS}
+                eager
+              />
 
               {/* 사진 · 이름 · 값, 이 셋뿐이다. 한 줄 설명은 걷어냈다.
-                  justify-center + gap-3: 남은 자리를 다른 것으로 채우지 않고 사이 여백으로 벌린다. */}
-              <span className="flex min-w-0 flex-1 flex-col justify-center gap-[var(--gap-in-card)]">
+                  이름과 값 사이는 벌리지 않는다 — 줄간격(52 / 48px)이 이미 자리를 잡아 준다.
+                  이름 두 줄 + 값이 정확히 사진 높이(152px)와 같아 카드에 빈 자리가 없다.
+                  pr-1.5: 값이 카드 오른쪽 끝에 붙지 않을 만큼만 남긴 6px. */}
+              <span className="flex min-w-0 flex-1 flex-col justify-center pr-1.5">
                 {badge && (
                   <span
-                    className={`w-fit rounded-full ${badge.color} px-3 text-sub font-semibold leading-[24px] text-white`}
+                    className={`mb-0.5 w-fit rounded-full ${badge.color} px-3 text-sub font-semibold leading-[24px] text-white`}
                   >
                     {badge.text}
                   </span>
                 )}
                 {/* break-keep: 한글이 낱말 중간에서 끊기지 않게 한다 ('아메리카 / 노' 방지) */}
-                <span className="break-keep text-menu font-bold text-ink">{menu.name}</span>
+                <span className="break-keep text-recommend-name font-bold text-ink">
+                  {menu.name}
+                </span>
                 <span className="text-card-price font-bold text-brand">
                   {menu.price.toLocaleString('ko-KR')}원
                 </span>

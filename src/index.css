@@ -23,26 +23,39 @@
     --frame-h: 100dvh;
 
     /* 글자 — 크기와 줄간격이 짝이다 */
-    --fs-question: 56px;
-    --lh-question: 70px;
+    --fs-question: 64px;
+    --lh-question: 80px;
     --fs-screen-title: 34px;
     --lh-screen-title: 46px;
-    --fs-btn: 34px;
-    --lh-btn: 44px;
+    --fs-btn: 40px;
+    --lh-btn: 52px;
     --fs-subtitle: 26px;
     --lh-subtitle: 34px;
-    --fs-back: 30px;
-    --lh-back: 34px;
+    /* 선택지가 셋인 질문(커피 맛)에서만 쓰는 작은 자막.
+       그 화면만 카드가 한 장 더 들어가야 해서 자막 바가 자리를 조금 내준다. */
+    --fs-subtitle-sm: 22px;
+    --lh-subtitle-sm: 30px;
+    --fs-back: 34px;
+    --lh-back: 40px;
     --fs-card-title: 26px;
     --lh-card-title: 34px;
     --fs-choice-title: 44px;
     --lh-choice-title: 54px;
-    --fs-choice-label: 52px;
-    --lh-choice-label: 64px;
+    --fs-choice-label: 60px;
+    --lh-choice-label: 74px;
+    /* 추천 결과 카드 전용 — 화면 폭·높이에 따라 아래 미디어쿼리에서 갈린다.
+       시연 기기(390x844)에서 이름 42px · 값 38px 이 나오고, 좁은 기기에서만 한 단계씩 내려간다. */
+    --fs-recommend-name: 36px;
+    --lh-recommend-name: 44px;
     --fs-card-price: 32px;
     --lh-card-price: 40px;
-    --fs-menu: 36px;
-    --lh-menu: 44px;
+    /* 추천 결과 제목 — 질문 글(64px)과 갈라져 나왔다.
+       '이 세 가지예요' 가 64px 에서 350px 이라 폭 385px 이 안 되는 기기에서는 두 줄이 된다.
+       두 줄이 되면 그 한 번에 71px 을 잃어 카드가 화면 밖으로 밀린다. */
+    --fs-result-title: 56px;
+    --lh-result-title: 62px;
+    --fs-menu: 42px;
+    --lh-menu: 52px;
     --fs-amount: 24px;
     --lh-amount: 32px;
     --fs-count: 48px;
@@ -62,29 +75,30 @@
     --h-choice-compact: 138px;
     --h-count: 150px;
     /*
-     * 추천 카드의 사진 — 이 한 값이 카드 높이까지 정한다.
+     * 추천 카드의 사진 — 이 한 값이 카드 높이까지 정한다. (사진 한 변 = 카드 높이)
      *
-     * '사진을 크게' 와 '카드 3장이 스크롤 없이' 는 좁은 화면에서 동시에 지킬 수 없다.
-     * 375x667 에서 카드 한 장이 쓸 수 있는 자리가 100px 남짓이라 큰 사진이 들어가지 못한다.
-     * 그래서 화면이 허락하는 만큼만 키운다 — 큰 기기에서는 크게, 작은 기기에서는 작게.
-     * 아래 값은 기기마다 '스크롤이 생기지 않는 최대치'를 재서 한 단계씩 낮춰 잡은 것이다.
-     *   390x844 -> 최대 130 (120 사용) / 375x812 -> 최대 80 (72)
-     *   360x740 -> 최대 64 (56)  / 375x667 -> 최대 48 (44)
+     * 사진을 키우는 것을 막는 것은 세로가 아니라 '가로' 다.
+     * 사진이 넓어질수록 옆의 이름이 쓸 폭이 좁아지고, 폭이 '카라멜 라떼' 보다 좁아지는 순간
+     * 이름이 세 줄로 접히면서 카드가 도로 높아진다. 그래서 아래 값은
+     *   min(이름이 두 줄에 머무는 최대 사진 크기, 카드 셋이 스크롤 없이 들어가는 최대치)
+     * 로 잡았다.
+     *   390x844 -> 152 (가로가 정함)  / 375x812 -> 144
+     *   360x740 -> 136                / 375x667 -> 116 (글씨를 한 단계 내리고 나서)
      *
-     * 기준은 버튼이 하나일 때다. [다른 메뉴 보기] 까지 둘이 되면 사진을 40px 로 줄여도
-     * 375x667 에는 들어가지 않는다. 지금 메뉴 데이터에서는 그 버튼이 나오지 않는다.
+     * 기준은 버튼이 하나일 때다. [다른 메뉴 보기] 까지 둘이 되면 88px 을 더 먹어
+     * 어느 기기에서도 이 크기로는 들어가지 않는다. 지금 메뉴 데이터에서는 그 버튼이 나오지 않는다.
      * (조합마다 후보가 정확히 3개 — scripts/check-combos.mjs 로 확인)
      * 메뉴를 늘려 후보가 4개 이상이 되면 이 값을 다시 재야 한다.
      */
-    --img-recommend: 72px;
+    --img-recommend: 144px;
 
-    /* 카드 높이는 사진을 따라간다. 사진 + 카드 위아래 여백 12px.
-       글(배지·이름·값)이 이보다 높아지면 min-h 라 카드가 알아서 늘어난다. */
-    --h-recommend-badge: calc(var(--img-recommend) + 12px);
-    --h-recommend-plain: calc(var(--img-recommend) + 12px);
+    /* 카드 높이 = 사진 크기. 카드 안쪽 여백을 0 으로 두어 사진이 카드 왼쪽을 꽉 채운다.
+       배지가 붙는 첫 카드만 배지 한 줄(24px) + 이름과의 사이(2px) 만큼 높다.
+       글(이름·값)이 이보다 높아지면 min-h 라 카드가 알아서 늘어난다. */
+    --h-recommend-plain: var(--img-recommend);
+    --h-recommend-badge: calc(var(--img-recommend) + 26px);
 
-    /* 사진·그림 — 잔 수 화면은 글씨를 키우고도 자리가 남아 사진을 줄이지 않았다.
-       (자리가 모자란 추천 결과에서만 사진을 64 -> 40px 로 줄였다. screens/Result.tsx) */
+    /* 사진·그림 — 잔 수 화면은 글씨를 키우고도 자리가 남아 사진을 줄이지 않았다. */
     --img-menu-lg: 200px;
     --icon-done: 44px;
     --circle-step: 52px;
@@ -92,10 +106,11 @@
     /* 여백 — 글씨를 키우며 가장 먼저 내준 자리다 */
     --pad-screen-y: 12px;
     --pad-bar-y: 14px;
+    --pad-bar-y-sm: 8px;
     --pad-footer-b: 20px;
     --gap-card: 20px;
     --gap-card-sm: 12px;
-    --gap-in-card: 6px;
+    --gap-in-card: 4px;
     --gap-steps: 12px;
     --stack-md: 20px;
     --stack-lg: 24px;
@@ -107,7 +122,10 @@
    * 글씨를 한 단계씩 키우면서 이 기기들에서 마지막 카드가 화면 밖으로 밀려났다.
    * 그렇다고 글씨를 되돌릴 수는 없어서, 여기서는 '글씨를 뺀 나머지' 만 줄인다.
    *   - 줄이는 것: 여백 · 카드 높이 · 사진 · 그림
-   *   - 건드리지 않는 것: 글자 크기 전부 (질문 56px, 라벨 52px, 자막 26px … 그대로다)
+   *   - 건드리지 않는 것: 글자 크기 (질문 · 라벨 · 자막 … 그대로다)
+   * 한 곳만 예외다 — 추천 카드의 이름과 값은 375x667 에서만 한 단계 내려간다.
+   * 그 화면은 카드 셋에 쓸 수 있는 자리가 400px 이 채 안 돼서 글씨를 줄이지 않으면
+   * 사진을 아무리 줄여도 세 장째가 화면 밖으로 밀린다. (아래 700px 블록)
    * 아래 데스크톱 블록이 글자까지 줄이는 것과 다른 점이 이것이다.
    *
    * 390x844 · 375x812 같은 요즘 휴대폰은 여기 걸리지 않는다. (세로 800px 초과)
@@ -122,8 +140,9 @@
       --h-choice: clamp(112px, 20vh, 180px);
       --h-choice-compact: clamp(88px, 15vh, 138px);
       --h-count: clamp(96px, 17vh, 150px);
-      /* 추천 사진 — 세로 800px 이 안 되는 기기. (카드 높이는 :root 의 calc 가 따라온다) */
-      --img-recommend: 56px;
+      /* 추천 사진 — 세로 800px 이 안 되는 기기. (카드 높이는 :root 의 calc 가 따라온다)
+         360x740 에서 카드 셋 + 버튼이 스크롤 없이 들어가는 값이다. */
+      --img-recommend: 136px;
 
       --img-menu-lg: clamp(120px, 24vh, 200px);
       --icon-done: clamp(32px, 5vh, 44px);
@@ -131,6 +150,7 @@
 
       --pad-screen-y: clamp(6px, 0.8vh, 12px);
       --pad-bar-y: clamp(8px, 1.1vh, 14px);
+      --pad-bar-y-sm: clamp(5px, 0.7vh, 8px);
       --pad-footer-b: clamp(10px, 1.4vh, 20px);
       --gap-card: clamp(8px, 2vh, 20px);
       --gap-card-sm: clamp(6px, 1.3vh, 12px);
@@ -147,18 +167,41 @@
    */
   @media (max-aspect-ratio: 3 / 5) and (max-height: 700px) {
     :root {
-      --img-recommend: 44px;
+      /* 여기서만 추천 카드 글씨를 한 단계 더 내린다.
+         이름 36px · 값 32px 이면 글만으로 카드가 128px 이라 셋이 들어가지 못한다. */
+      --fs-recommend-name: 30px;
+      --lh-recommend-name: 36px;
+      --fs-card-price: 26px;
+      --lh-card-price: 34px;
+      --img-recommend: 116px;
     }
   }
 
   /*
-   * 화면이 넉넉한 휴대폰 — 390x844 · 412x915 등.
-   * 폭이 385px 을 넘어야 '시원한 카라멜 라떼' 가 사진 옆에서 두 줄에 들어간다.
-   * (375px 에서는 세 줄이 되어 카드가 더 높아지므로 여기 넣지 않는다)
+   * 화면이 넉넉한 휴대폰 — 390x844(시연 기기) · 412x915 등.
+   * 추천 결과 화면은 이 기기를 기준으로 맞춰 두었다.
+   * 폭이 385px 을 넘어야 제목이 한 줄에 들어가고, 사진을 152px 까지 키워도
+   * 이름이 사진 옆에서 두 줄에 머문다. (375px 에서는 둘 다 무너진다)
    */
   @media (min-width: 385px) and (min-height: 820px) and (max-aspect-ratio: 3 / 5) {
     :root {
-      --img-recommend: 120px;
+      /* 제목이 한 줄에 들어가는 폭이다. ('이 세 가지예요' 64px = 350px < 366px)
+         줄간격은 80 -> 71px. 한 줄짜리 제목 위아래의 빈 자리를 카드에 넘겨준다. */
+      --fs-result-title: 64px;
+      --lh-result-title: 71px;
+      /* 이름 42px · 값 38px — 이름 두 줄(104) + 값(48) = 152px 로 사진 크기와 같다.
+         그래서 카드 어느 쪽에도 남는 자리가 생기지 않는다. */
+      --fs-recommend-name: 42px;
+      --lh-recommend-name: 52px;
+      --fs-card-price: 38px;
+      --lh-card-price: 48px;
+      /*
+       * 사진 152px — 이 값을 정한 것은 세로가 아니라 가로다.
+       * 카드 폭 366(390 - 좌우 12) 에서 사진 152 · 사이 4 · 오른쪽 여백 6 을 빼면
+       * 이름이 쓸 폭이 204px 남는다. 가장 긴 덩어리가 '카라멜 라떼'(197px) 라
+       * 이보다 좁아지면 이름이 세 줄로 접히면서 카드가 도로 높아진다.
+       */
+      --img-recommend: 152px;
     }
   }
 
@@ -171,25 +214,31 @@
    */
   @media (min-aspect-ratio: 3 / 5) {
     :root {
-      --fs-question: clamp(32px, 6.1vh, 56px);
+      --fs-question: clamp(32px, 6.1vh, 64px);
       --lh-question: 1.25em;
       --fs-screen-title: clamp(26px, 3.7vh, 34px);
       --lh-screen-title: 1.35em;
-      --fs-btn: clamp(22px, 3.6vh, 34px);
+      --fs-btn: clamp(22px, 3.6vh, 40px);
       --lh-btn: 1.3em;
       --fs-subtitle: clamp(20px, 2.9vh, 26px);
+      --fs-subtitle-sm: clamp(18px, 2.4vh, 22px);
+      --lh-subtitle-sm: 1.36em;
       --lh-subtitle: 1.3em;
-      --fs-back: clamp(22px, 3.3vh, 30px);
+      --fs-back: clamp(22px, 3.3vh, 34px);
       --lh-back: 1.15em;
       --fs-card-title: clamp(21px, 2.9vh, 26px);
       --lh-card-title: 1.3em;
       --fs-choice-title: clamp(28px, 5.5vh, 44px);
       --lh-choice-title: 1.25em;
-      --fs-choice-label: clamp(28px, 5.3vh, 52px);
+      --fs-choice-label: clamp(28px, 5.3vh, 60px);
       --lh-choice-label: 1.23em;
-      --fs-card-price: clamp(21px, 3.6vh, 32px);
-      --lh-card-price: 1.25em;
-      --fs-menu: clamp(23px, 4vh, 36px);
+      --fs-recommend-name: clamp(22px, 4vh, 42px);
+      --lh-recommend-name: 1.24em;
+      --fs-card-price: clamp(20px, 3.5vh, 38px);
+      --lh-card-price: 1.26em;
+      --fs-result-title: clamp(30px, 5.6vh, 64px);
+      --lh-result-title: 1.12em;
+      --fs-menu: clamp(23px, 4vh, 42px);
       --lh-menu: 1.22em;
       --fs-amount: clamp(20px, 2.7vh, 24px);
       --lh-amount: 1.33em;
@@ -207,7 +256,7 @@
       --h-choice-compact: clamp(96px, 15vh, 138px);
       --h-count: clamp(96px, 16.5vh, 150px);
       /* 가로가 넓은 창 — 세로가 자리를 정하므로 높이에 맞춰 줄인다 */
-      --img-recommend: clamp(44px, 9vh, 120px);
+      --img-recommend: clamp(88px, 19vh, 152px);
 
       --img-menu-lg: clamp(104px, 22vh, 200px);
       --icon-done: clamp(32px, 4.6vh, 44px);
@@ -215,6 +264,7 @@
 
       --pad-screen-y: clamp(8px, 1.2vh, 12px);
       --pad-bar-y: clamp(10px, 1.5vh, 14px);
+      --pad-bar-y-sm: clamp(5px, 0.9vh, 8px);
       --pad-footer-b: clamp(12px, 2vh, 20px);
       --gap-card: clamp(10px, 2vh, 20px);
       --gap-card-sm: clamp(8px, 1.3vh, 12px);
