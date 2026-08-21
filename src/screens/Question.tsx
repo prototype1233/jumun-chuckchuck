@@ -25,13 +25,12 @@ interface StepConfig {
    * 둘이 갈리는 질문에만 따로 적는다.
    */
   speechText?: string
-  subtitle: string
   /**
    * 선택지는 라벨 한 줄뿐이다.
    *
    * 예전에는 64px 아이콘과 '부드럽고 순한 맛' 같은 22px 한 줄 설명이 함께 있었다.
    * 둘 다 걷어내고 그 자리를 라벨 크기(52px)에 줬다.
-   * 무엇이 다른지는 speechText 의 음성 안내와 자막 바가 알려 드린다.
+   * 무엇이 다른지는 speechText 의 음성 안내가 알려 드린다.
    *
    * 라벨은 네 글자를 넘기지 않는다. 52px 에서 '달콤하게'(176px)까지가 375px 화면에 들어간다.
    */
@@ -50,7 +49,6 @@ const STEPS: Record<number, StepConfig> = {
     // 덜어낸 말은 아래 speechText 가 그대로 담고 있어 귀로 듣는 문장은 예전과 같다.
     question: ['어떤 메뉴를', '드릴까요?'],
     speechText: '어떤 메뉴를 준비해 드릴까요? 커피, 음료 중에 골라주세요.',
-    subtitle: '고르시면 다음으로 넘어가요',
     options: [
       { value: 'coffee', label: '커피' },
       { value: 'beverage', label: '음료' },
@@ -63,7 +61,6 @@ const STEPS: Record<number, StepConfig> = {
     // 귀로 듣는 문장은 speechText 가 예전 그대로 담고 있다.
     question: ['온도는', '어떠세요?'],
     speechText: '온도는 어떻게 하시겠어요? 차갑게, 따뜻하게 중에 골라주세요.',
-    subtitle: '고르시면 다음으로 넘어가요',
     options: [
       { value: 'ice', label: '시원함' },
       { value: 'hot', label: '따뜻함' },
@@ -79,7 +76,6 @@ const STEP3_BEVERAGE: StepConfig = {
   // (390px 화면의 가용 폭이 342px 이다) 화면 글씨만 '당도는 / 어떠세요?' 로 줄였다.
   question: ['당도는', '어떠세요?'],
   speechText: '당도는 어떻게 맞춰드릴까요? 달콤한 맛과 담백한 맛 중에 골라주세요.',
-  subtitle: '마지막 질문이에요',
   options: [
     { value: 'sweet', label: '달콤함' },
     { value: 'plain', label: '담백함' },
@@ -99,7 +95,6 @@ const STEP3_BEVERAGE: StepConfig = {
 const STEP3_COFFEE: StepConfig = {
   question: ['어떤 맛으로', '드릴까요?'],
   speechText: '어떤 맛으로 드릴까요? 연하게, 진하게, 달콤하게 중에 골라주세요.',
-  subtitle: '마지막 질문이에요',
   options: [
     { value: 'light', label: '연하게' },
     { value: 'strong', label: '진하게' },
@@ -160,23 +155,19 @@ export default function Question() {
   const compact = config.options.length > 2
 
   return (
-    // compactSubtitle: 선택지가 셋인 화면에서만 자막 바가 자리를 조금 내준다.
-    //                   카드 세 장이 스크롤 없이 들어가는 것이 자막 크기보다 앞선다.
-    <ScreenLayout onBack={handleBack} subtitle={config.subtitle} compactSubtitle={compact}>
+    <ScreenLayout onBack={handleBack}>
       {/* 점만 있는 진행 표시. 높이(28px)는 예전 자리 그대로라 질문 위치는 변하지 않는다. */}
       <ProgressDots total={TOTAL} current={step} />
 
       <QuestionTitle lines={config.question} className="mt-[var(--stack-md)]" />
 
-      {/* 질문과 카드 사이 여백 — 질문이 56px 로 커지며 두 줄이 되어 좁혔다.
-          선택지 둘: 32 -> 24px / 선택지 셋: 24 -> 16px.
-          글자 크기는 그대로 두고 여백부터 내주는 순서다.
-          창이 짧아질 때도 같은 순서다 — 여백이 먼저 줄고 글자는 마지막에 줄어든다. */}
+      {/* 질문 바로 아래에 붙이고(--gap-question), 남는 자리는 카드들이 나눠 갖는다.
+          카드가 flex-1 이라 위아래에 빈 자리가 남지 않는다. (ChoiceCard 참고) */}
       <div
         className={
           compact
-            ? 'mt-[var(--gap-card-sm)] flex flex-col gap-[var(--gap-card-sm)]'
-            : 'mt-[var(--stack-md)] flex flex-col gap-[var(--gap-card)]'
+            ? 'mt-[var(--gap-question-sm)] flex flex-1 flex-col gap-[var(--gap-card-sm)]'
+            : 'mt-[var(--gap-question)] flex flex-1 flex-col gap-[var(--gap-card)]'
         }
       >
         {config.options.map((option) => (

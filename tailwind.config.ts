@@ -49,13 +49,6 @@ export default {
         'screen-title': ['var(--fs-screen-title)', { lineHeight: 'var(--lh-screen-title)', letterSpacing: '-0.02em' }],
         // 버튼 라벨 (시작하기 · 다음 · 다시 고를래요 …) — 34px -> 40px
         btn: ['var(--fs-btn)', { lineHeight: 'var(--lh-btn)', letterSpacing: '-0.02em' }],
-        // 하단 자막 바 — body(20px) 와 함께 쓰다가 26px 로 갈라져 나왔다.
-        // 자막은 화면마다 반드시 읽히는 한 문장이라 본문보다 크게 둔다.
-        subtitle: ['var(--fs-subtitle)', { lineHeight: 'var(--lh-subtitle)', letterSpacing: '-0.01em' }],
-        // 선택지가 셋인 질문(커피 맛) 화면에서만 쓰는 작은 자막 — 26px 대신 22px.
-        // 그 화면은 카드가 한 장 더 들어가야 해서 자막 바가 자리를 조금 내준다.
-        // 다른 화면의 자막은 subtitle(26px) 그대로다.
-        'subtitle-sm': ['var(--fs-subtitle-sm)', { lineHeight: 'var(--lh-subtitle-sm)', letterSpacing: '-0.01em' }],
         // 좌측 상단 뒤로가기 — 30px -> 34px
         back: ['var(--fs-back)', { lineHeight: 'var(--lh-back)', letterSpacing: '-0.02em' }],
         // 26px
@@ -97,6 +90,12 @@ export default {
         total: ['var(--fs-total)', { lineHeight: 'var(--lh-total)', letterSpacing: '-0.02em' }],
         // 대기번호 (96px)
         waiting: ['var(--fs-waiting)', { lineHeight: 'var(--lh-waiting)', letterSpacing: '0.02em' }],
+        // 주문 완료 화면의 3단계 안내 (40px) — body(20px) 에서 갈라져 나왔다.
+        // 이 화면에는 이제 이 글과 제목뿐이라, 매장 기계 앞에서 읽을 이 글을 가장 크게 둔다.
+        // 한 줄에 담기지 않아 두 줄로 접힌다 — break-keep 으로 낱말은 쪼개지지 않게 한다.
+        step: ['var(--fs-step)', { lineHeight: 'var(--lh-step)', letterSpacing: '-0.02em' }],
+        // 그 앞 번호 배지 안의 숫자 (32px)
+        'step-num': ['var(--fs-step-num)', { lineHeight: 'var(--lh-step-num)', letterSpacing: '-0.01em' }],
       },
       borderRadius: {
         card: '28px',

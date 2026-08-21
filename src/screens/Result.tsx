@@ -160,11 +160,8 @@ export default function Result() {
   return (
     <ScreenLayout
       onBack={() => navigate('/q/3')}
-      subtitle="드시고 싶은 것을 눌러 주세요"
       // 카드가 화면 폭을 최대한 쓰도록 좌우 여백을 24 -> 12px 로 좁힌다.
       tightPadX
-      // 자막을 22px 로 낮춰 바 높이 16px 을 카드에 넘겨준다.
-      compactSubtitle
       footer={
         // 버튼 사이는 8px. 두 개가 들어가도 390x844 에서 카드가 밀려나지 않는 간격이다.
         <div className="flex flex-col gap-1.5">
@@ -192,7 +189,7 @@ export default function Result() {
 
           key={offset}: 메뉴가 바뀔 때마다 이 자리를 새로 그려 200ms 페이드를 다시 재생한다.
           움직임 없이 색만 스며들게 한다 — 화면이 툭 바뀌면 잘못 눌렀나 싶어 놀라신다. */}
-      <div key={offset} className="flex animate-fade flex-col gap-2">
+      <div key={offset} className="flex animate-fade flex-col gap-3">
         {menus.map((menu, index) => {
           // 배지는 카드당 하나만. 둘 다 해당하면 '자주 드시던 것' 을 먼저 보여 준다.
           //

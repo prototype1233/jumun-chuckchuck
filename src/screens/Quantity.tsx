@@ -63,8 +63,10 @@ export default function Quantity() {
   }
 
   return (
-    <ScreenLayout onBack={handleBack} subtitle="몇 잔 드릴지 골라 주세요">
-      <div className="flex flex-col items-center">
+    <ScreenLayout onBack={handleBack}>
+      {/* flex-1 + justify-center — 사진 덩어리가 질문 위 남는 자리 가운데에 놓인다.
+          자막 바를 걷어내며 생긴 자리가 화면 아래에 몰려 비어 보이지 않게 하려는 것이다. */}
+      <div className="flex flex-1 flex-col items-center justify-center">
         <MenuImage menu={menu} size={IMAGE_SIZE} radius={28} eager />
 
         <p className="mt-[var(--gap-card)] break-keep text-center text-menu font-bold text-ink">

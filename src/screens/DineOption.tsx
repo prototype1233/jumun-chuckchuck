@@ -44,10 +44,12 @@ export default function DineOption() {
   }
 
   return (
-    <ScreenLayout onBack={handleBack} subtitle="둘 중 하나를 눌러 주세요">
+    <ScreenLayout onBack={handleBack}>
       <QuestionTitle lines={QUESTION_LINES} />
 
-      <div className="mt-[var(--stack-lg)] flex flex-col gap-[var(--gap-card)]">
+      {/* 질문 바로 아래에 붙이고(--gap-question), 남는 자리는 카드 둘이 나눠 갖는다.
+          카드가 flex-1 이라 화면 아래가 비지 않는다. (ChoiceCard 참고) */}
+      <div className="mt-[var(--gap-question)] flex flex-1 flex-col gap-[var(--gap-card)]">
         {/* emphasis="dine": 카드 한가운데 라벨(44px) 하나뿐이다.
             64px 아이콘과 '가게 안에서 드세요' 같은 보조 설명을 모두 걷어냈다.
 

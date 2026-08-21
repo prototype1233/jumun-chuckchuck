@@ -204,20 +204,10 @@ export default function VoiceOrder() {
     goQuestions()
   }
 
-  const subtitle =
-    phase === 'choosing'
-      ? '드시고 싶은 것을 눌러 주세요'
-      : phase === 'notFound'
-        ? '다시 말씀하시거나 골라 주세요'
-        : phase === 'denied'
-          ? '질문으로 고르실 수 있어요'
-          : '천천히 말씀하셔도 괜찮아요'
-
   return (
     <ScreenLayout
       onBack={handleQuit}
       backLabel="처음으로"
-      subtitle={subtitle}
       footer={footerFor(phase, { handleQuit, handleRetry, goQuestions, handleUseButtons })}
     >
       {(phase === 'preparing' || phase === 'listening') && (

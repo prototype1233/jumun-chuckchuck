@@ -29,20 +29,16 @@
     --lh-screen-title: 46px;
     --fs-btn: 40px;
     --lh-btn: 52px;
-    --fs-subtitle: 26px;
-    --lh-subtitle: 34px;
-    /* 선택지가 셋인 질문(커피 맛)에서만 쓰는 작은 자막.
-       그 화면만 카드가 한 장 더 들어가야 해서 자막 바가 자리를 조금 내준다. */
-    --fs-subtitle-sm: 22px;
-    --lh-subtitle-sm: 30px;
     --fs-back: 34px;
     --lh-back: 40px;
     --fs-card-title: 26px;
     --lh-card-title: 34px;
     --fs-choice-title: 44px;
     --lh-choice-title: 54px;
-    --fs-choice-label: 60px;
-    --lh-choice-label: 74px;
+    /* 질문 화면 선택 카드 라벨 — 60 -> 72px.
+       가장 긴 라벨 '달콤하게'(네 글자)가 360px 화면에서 한 줄에 남는 상한이다. */
+    --fs-choice-label: 72px;
+    --lh-choice-label: 84px;
     /* 추천 결과 카드 전용 — 화면 폭·높이에 따라 아래 미디어쿼리에서 갈린다.
        시연 기기(390x844)에서 이름 42px · 값 38px 이 나오고, 좁은 기기에서만 한 단계씩 내려간다. */
     --fs-recommend-name: 36px;
@@ -64,16 +60,31 @@
     --lh-total: 42px;
     --fs-waiting: 96px;
     --lh-waiting: 104px;
+    /* 주문 완료 화면의 3단계 안내 — body(20px) 와 함께 쓰다가 40px 로 갈라져 나왔다.
+       매장 기계 앞에서 폰을 손에 든 채 읽는 글이라 이 화면에서 가장 커야 한다.
+       40px 이면 한 줄에 안 들어가 두 줄로 접힌다. break-keep 이라 낱말은 쪼개지지 않는다.
+       (예: '가게 기계 / 앞으로 가세요') 두 줄을 전제로 자리를 잡아 두었다. */
+    --fs-step: 40px;
+    --lh-step: 50px;
+    /* 앞의 번호 배지 안 숫자 */
+    --fs-step-num: 32px;
+    --lh-step-num: 40px;
 
     /* 누르는 것의 높이 */
     --h-touch: 88px;
     --h-cta: 96px;
-    /* 자리가 모자란 곳만 카드 높이로 메웠다. 어느 것도 88px 아래로 내려가지 않는다.
-       선택지가 셋인 질문(커피 맛)만 148 -> 138px 이고, 나머지는 예전 높이 그대로다.
-       (선택지 둘·잔 수 화면은 글씨를 키우고도 자리가 남아 줄이지 않았다) */
-    --h-choice: 180px;
-    --h-choice-compact: 138px;
-    --h-count: 150px;
+    /*
+     * 카드 높이 — 하단 자막 바(63px)를 걷어내고 그 자리를 여기로 돌렸다.
+     *   선택지 둘  180 -> 226px   (질문 1·2 와 드실 곳)
+     *   선택지 셋  138 -> 136px   (커피 맛 — 세 장이라 몫이 작다. 라벨 72px 이 우선이다)
+     *   잔 수      150 -> 210px
+     * 값을 정한 것은 '카드가 스크롤 없이 다 들어가는 최대치' 다.
+     * 세 장짜리는 375x812 이, 두 장짜리도 375x812 이 가장 빡빡해서 그 기기가 상한을 정했다.
+     * 어느 것도 88px 아래로 내려가지 않는다.
+     */
+    --h-choice: 226px;
+    --h-choice-compact: 136px;
+    --h-count: 210px;
     /*
      * 추천 카드의 사진 — 이 한 값이 카드 높이까지 정한다. (사진 한 변 = 카드 높이)
      *
@@ -98,20 +109,29 @@
     --h-recommend-plain: var(--img-recommend);
     --h-recommend-badge: calc(var(--img-recommend) + 26px);
 
-    /* 사진·그림 — 잔 수 화면은 글씨를 키우고도 자리가 남아 사진을 줄이지 않았다. */
-    --img-menu-lg: 200px;
-    --icon-done: 44px;
-    --circle-step: 52px;
+    /* 사진·그림 — 자막 바를 걷어낸 63px 이 가장 크게 간 곳이 잔 수 화면의 사진이다. */
+    --img-menu-lg: 260px;
+    /* 3단계 안내를 40px 로 키우며 이 그림이 자리를 내줬다. (44 -> 36px) */
+    --icon-done: 36px;
+    --circle-step: 56px;
 
     /* 여백 — 글씨를 키우며 가장 먼저 내준 자리다 */
     --pad-screen-y: 12px;
-    --pad-bar-y: 14px;
-    --pad-bar-y-sm: 8px;
     --pad-footer-b: 20px;
     --gap-card: 20px;
     --gap-card-sm: 12px;
+    /*
+     * 질문 글과 첫 카드 사이 — 이 한 자리만 쓰는 값이다.
+     * 질문 화면 20px · 드실 곳 24px 로 갈려 있던 것을 15px 하나로 모았다.
+     * 질문과 고를 것이 한 덩어리로 보여야 눈이 글에서 카드로 바로 내려간다.
+     * 선택지가 셋인 화면(커피 맛)은 카드가 한 장 더 있어 8px 까지 좁힌다.
+     * 좁힌 만큼은 그대로 카드 높이로 갔다. (--h-choice / --h-choice-compact)
+     */
+    --gap-question: 15px;
+    --gap-question-sm: 8px;
     --gap-in-card: 4px;
-    --gap-steps: 12px;
+    /* 단계 사이 — 글씨가 40px 이라 12px 으로는 세 단계가 한 덩어리로 붙어 보인다 */
+    --gap-steps: 24px;
     --stack-md: 20px;
     --stack-lg: 24px;
   }
@@ -137,25 +157,28 @@
       --h-touch: clamp(72px, 9.5vh, 88px);
       --h-cta: clamp(76px, 11vh, 96px);
       /* 카드 — 최소 88px */
-      --h-choice: clamp(112px, 20vh, 180px);
-      --h-choice-compact: clamp(88px, 15vh, 138px);
-      --h-count: clamp(96px, 17vh, 150px);
+      /* 자막 바를 걷어낸 몫을 여기서도 카드에 돌렸다. 상한은 375x667 이 정한다 —
+         이 기기가 세 장(커피 맛)·두 장 모두 가장 빡빡하다. */
+      --h-choice: clamp(140px, 26vh, 226px);
+      --h-choice-compact: clamp(112px, 17.5vh, 136px);
+      --h-count: clamp(110px, 23vh, 210px);
       /* 추천 사진 — 세로 800px 이 안 되는 기기. (카드 높이는 :root 의 calc 가 따라온다)
          360x740 에서 카드 셋 + 버튼이 스크롤 없이 들어가는 값이다. */
       --img-recommend: 136px;
 
-      --img-menu-lg: clamp(120px, 24vh, 200px);
-      --icon-done: clamp(32px, 5vh, 44px);
-      --circle-step: clamp(40px, 6vh, 52px);
+      --img-menu-lg: clamp(140px, 31vh, 260px);
+      --icon-done: clamp(28px, 4.2vh, 36px);
+      /* 배지·단계 간격은 여기까지 제 크기 그대로다. 줄이는 것은 아이폰 SE 뿐이다. (아래 700px 블록) */
+      --circle-step: 56px;
 
       --pad-screen-y: clamp(6px, 0.8vh, 12px);
-      --pad-bar-y: clamp(8px, 1.1vh, 14px);
-      --pad-bar-y-sm: clamp(5px, 0.7vh, 8px);
       --pad-footer-b: clamp(10px, 1.4vh, 20px);
       --gap-card: clamp(8px, 2vh, 20px);
       --gap-card-sm: clamp(6px, 1.3vh, 12px);
+      --gap-question: clamp(10px, 1.9vh, 15px);
+      --gap-question-sm: clamp(6px, 1.1vh, 8px);
       --gap-in-card: clamp(4px, 0.8vh, 6px);
-      --gap-steps: clamp(6px, 1.2vh, 12px);
+      --gap-steps: 24px;
       --stack-md: clamp(10px, 2.1vh, 20px);
       --stack-lg: clamp(12px, 2.5vh, 24px);
     }
@@ -174,6 +197,15 @@
       --fs-card-price: 26px;
       --lh-card-price: 34px;
       --img-recommend: 116px;
+
+      /* 주문 완료 화면 — 이 기기(375x667)만 안내 자리를 좁힌다.
+         글씨는 40px 그대로 두고 줄간격(50 -> 44px) · 단계 간격(24 -> 12px) · 배지(56 -> 48px)만
+         내준다. 그러지 않으면 바코드가 45px 까지 밀려 스캐너가 읽지 못한다.
+         다른 기기는 전부 제 크기 그대로다 — 390x844(시연 기기)·375x812·360x740. */
+      --lh-step: 44px;
+      --gap-steps: 12px;
+      --circle-step: 48px;
+      --pad-footer-b: 10px;
     }
   }
 
@@ -220,18 +252,14 @@
       --lh-screen-title: 1.35em;
       --fs-btn: clamp(22px, 3.6vh, 40px);
       --lh-btn: 1.3em;
-      --fs-subtitle: clamp(20px, 2.9vh, 26px);
-      --fs-subtitle-sm: clamp(18px, 2.4vh, 22px);
-      --lh-subtitle-sm: 1.36em;
-      --lh-subtitle: 1.3em;
       --fs-back: clamp(22px, 3.3vh, 34px);
       --lh-back: 1.15em;
       --fs-card-title: clamp(21px, 2.9vh, 26px);
       --lh-card-title: 1.3em;
       --fs-choice-title: clamp(28px, 5.5vh, 44px);
       --lh-choice-title: 1.25em;
-      --fs-choice-label: clamp(28px, 5.3vh, 60px);
-      --lh-choice-label: 1.23em;
+      --fs-choice-label: clamp(28px, 6.4vh, 72px);
+      --lh-choice-label: 1.17em;
       --fs-recommend-name: clamp(22px, 4vh, 42px);
       --lh-recommend-name: 1.24em;
       --fs-card-price: clamp(20px, 3.5vh, 38px);
@@ -248,28 +276,34 @@
       --lh-total: 1.31em;
       --fs-waiting: clamp(64px, 12vh, 96px);
       --lh-waiting: 1.08em;
+      /* 휴대폰에서는 40px 고정이다. 세로가 짧은 데스크톱 창에서만 줄어들되,
+         본문(20px)보다는 확실히 크게 24px 에서 멈춘다. */
+      --fs-step: clamp(24px, 4.6vh, 40px);
+      --lh-step: 1.25em;
+      --fs-step-num: clamp(20px, 3.7vh, 32px);
+      --lh-step-num: 1.25em;
 
       /* 최솟값 72px — 손가락으로 누르는 것은 이 아래로 내려가지 않는다 */
       --h-touch: clamp(72px, 9.5vh, 88px);
       --h-cta: clamp(72px, 10.5vh, 96px);
-      --h-choice: clamp(104px, 19.5vh, 180px);
-      --h-choice-compact: clamp(96px, 15vh, 138px);
-      --h-count: clamp(96px, 16.5vh, 150px);
+      --h-choice: clamp(104px, 24vh, 226px);
+      --h-choice-compact: clamp(96px, 17vh, 136px);
+      --h-count: clamp(96px, 21vh, 210px);
       /* 가로가 넓은 창 — 세로가 자리를 정하므로 높이에 맞춰 줄인다 */
       --img-recommend: clamp(88px, 19vh, 152px);
 
-      --img-menu-lg: clamp(104px, 22vh, 200px);
-      --icon-done: clamp(32px, 4.6vh, 44px);
-      --circle-step: clamp(40px, 5.6vh, 52px);
+      --img-menu-lg: clamp(104px, 28vh, 260px);
+      --icon-done: clamp(28px, 3.9vh, 36px);
+      --circle-step: clamp(40px, 6.2vh, 56px);
 
       --pad-screen-y: clamp(8px, 1.2vh, 12px);
-      --pad-bar-y: clamp(10px, 1.5vh, 14px);
-      --pad-bar-y-sm: clamp(5px, 0.9vh, 8px);
       --pad-footer-b: clamp(12px, 2vh, 20px);
       --gap-card: clamp(10px, 2vh, 20px);
       --gap-card-sm: clamp(8px, 1.3vh, 12px);
+      --gap-question: clamp(8px, 1.8vh, 15px);
+      --gap-question-sm: clamp(5px, 1vh, 8px);
       --gap-in-card: clamp(4px, 0.7vh, 6px);
-      --gap-steps: clamp(6px, 1.2vh, 12px);
+      --gap-steps: clamp(8px, 2.4vh, 24px);
       --stack-md: clamp(12px, 2.1vh, 20px);
       --stack-lg: clamp(14px, 2.5vh, 24px);
     }

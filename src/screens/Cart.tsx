@@ -17,6 +17,10 @@ const TITLE = '담은 음료예요'
  * 그만큼 카드가 높아져 담은 것 두 개가 한 화면에 들어가지 못했다.
  *   글자 폭 = 312 - 카드 여백 16 - 사진 80 - 사이 16 - [빼기] 64 = 136px  (360px 화면 기준)
  * 글씨를 줄이는 대신 사진을 줄이고 [빼기] 의 좌우 여백도 한 단계 좁혔다.
+ *
+ * 자막 바를 걷어낼 때도 여기만은 키우지 않았다. 이 사진을 정하는 것은 세로가 아니라
+ * 가로이기 때문이다 — 96px 로만 올려도 이름 폭이 120px 로 좁아져 다시 세 줄이 된다.
+ * 걷어낸 63px 은 대신 목록이 가져갔다. 스크롤 없이 보이는 줄이 그만큼 늘어난다.
  */
 const IMAGE_SIZE = 80
 
@@ -54,7 +58,6 @@ export default function Cart() {
     return (
       <ScreenLayout
         onBack={() => navigate('/result')}
-        subtitle="더 담으시거나 주문하세요"
         footer={<Button onClick={goPickMore}>음료 고르러 가기</Button>}
       >
         <h1 className="text-screen-title font-bold text-ink">{TITLE}</h1>
@@ -66,7 +69,6 @@ export default function Cart() {
   return (
     <ScreenLayout
       onBack={() => navigate('/result')}
-      subtitle="더 담으시거나 주문하세요"
       footer={
         <div className="flex flex-col gap-3">
           {/* 총액은 목록이 길어져도 항상 눈에 보이도록 버튼과 함께 아래에 고정한다. */}

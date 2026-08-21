@@ -66,7 +66,6 @@ export default function OrderConfirm() {
   return (
     <ScreenLayout
       onBack={() => navigate('/cart')}
-      subtitle="맞으면 아래 버튼을 눌러 주세요"
       footer={
         <div className="flex flex-col gap-3">
           <p className="text-total font-bold text-ink">모두 {won(total)}</p>
